@@ -1,0 +1,7 @@
+{
+  "markdown.copyFiles.destination": {
+    "/content/**/*": "${documentWorkspaceFolder}/assets/${documentBaseName}/${fileName}"
+  },
+  "markdown.editor.filePaste.copyIntoWorkspace": "mediaFiles",
+  "markdown.copyFiles.overwriteBehavior": "nameIncrementally"
+}
