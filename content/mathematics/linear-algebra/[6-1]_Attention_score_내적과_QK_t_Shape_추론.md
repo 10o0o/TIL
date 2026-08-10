@@ -129,7 +129,7 @@ $$
 코사인 유사도는 내적을 두 벡터의 크기로 나눈 값이다.
 
 $$
-\operatorname{cosine\_similarity}(q,k)
+\mathrm{cosine\_similarity}(q,k)
 =\frac{q\cdot k}{\lVert q\rVert\lVert k\rVert}
 $$
 
@@ -367,8 +367,8 @@ Attention weight @ Value → 선택한 위치의 실제 정보 결합
 Attention의 핵심 계산은 다음과 같다.
 
 $$
-\operatorname{Attention}(Q,K,V)
-=\operatorname{softmax}\left(
+\mathrm{Attention}(Q,K,V)
+=\mathrm{softmax}\left(
 \frac{QK^\top}{\sqrt{d_k}}+M
 \right)V
 $$
@@ -380,13 +380,13 @@ $$
 | 1 | $QK^\top$ | 모든 Query-Key 적합도 계산 |
 | 2 | $\dfrac{QK^\top}{\sqrt{d_k}}$ | 차원 증가에 따른 점수 분산 보정 |
 | 3 | $+M$ | 보면 안 되는 위치 차단 |
-| 4 | $\operatorname{softmax}(\cdot)$ | 각 Query 행을 합이 1인 가중치로 변환 |
+| 4 | $\mathrm{softmax}(\cdot)$ | 각 Query 행을 합이 1인 가중치로 변환 |
 | 5 | $AV$ | Value의 가중합으로 새 토큰 표현 생성 |
 
 Attention weight를 $A$라고 쓰면
 
 $$
-A=\operatorname{softmax}\left(
+A=\mathrm{softmax}\left(
 \frac{QK^\top}{\sqrt{d_k}}+M
 \right)
 $$
@@ -416,22 +416,22 @@ $$
 각 곱 $q_rk_r$의 분산을 약 $1$로 보면, 독립인 항 $d_k$개를 더한 내적의 분산은 대략 다음과 같다.
 
 $$
-\operatorname{Var}(q\cdot k)\approx d_k
+\mathrm{Var}(q\cdot k)\approx d_k
 $$
 
 따라서 표준편차는 약 $\sqrt{d_k}$가 된다.
 
 $$
-\operatorname{Std}(q\cdot k)\approx\sqrt{d_k}
+\mathrm{Std}(q\cdot k)\approx\sqrt{d_k}
 $$
 
 $\sqrt{d_k}$로 나누면 분산이 다시 약 $1$이 된다.
 
 $$
-\operatorname{Var}\left(
+\mathrm{Var}\left(
 \frac{q\cdot k}{\sqrt{d_k}}
 \right)
-=\frac{\operatorname{Var}(q\cdot k)}{d_k}
+=\frac{\mathrm{Var}(q\cdot k)}{d_k}
 \approx1
 $$
 
@@ -449,21 +449,21 @@ $$
 Softmax는 다음과 같다.
 
 $$
-\operatorname{softmax}(x_i)
+\mathrm{softmax}(x_i)
 =\frac{e^{x_i}}{\sum_j e^{x_j}}
 $$
 
 예를 들어
 
 $$
-\operatorname{softmax}([1,2,3])
+\mathrm{softmax}([1,2,3])
 \approx[0.09,0.24,0.67]
 $$
 
 이지만, 점수 차이가 열 배 커지면
 
 $$
-\operatorname{softmax}([10,20,30])
+\mathrm{softmax}([10,20,30])
 \approx[0,0.00005,0.99995]
 $$
 
@@ -677,7 +677,7 @@ $$
 따라서 score는 자연스럽게 다음과 같이 읽힌다.
 
 $$
-\operatorname{score}[b,i,j]
+\mathrm{score}[b,i,j]
 =\sum_{r=1}^{d_k}Q[b,i,r]K[b,j,r]
 $$
 
