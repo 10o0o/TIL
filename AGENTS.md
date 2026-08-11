@@ -58,6 +58,7 @@ publish: false
 - Prefer the learning flow `오늘의 질문 → 핵심 결론 → 개념 정리 → 직접 확인 → 헷갈리기 쉬운 부분 → 실제 활용 → 한 문장 요약`.
 - Keep only sections that have meaningful content; section names may be adapted to the topic.
 - Write primarily in Korean. On first use, add an English technical term in parentheses when it improves clarity.
+- When Korean text immediately follows bold emphasis, include the particle or ending inside the bold delimiters, or rewrite the sentence so whitespace or punctuation follows the closing `**`. For example, use `**지도학습은**` or `**지도학습**: ...`. Closing the emphasis before an attached Korean particle may expose the literal asterisks in VS Code preview or GitHub.
 - Keep notation and capitalization consistent within a document, including `shape`, `Query`, `Key`, `Value`, `NumPy`, and matrix symbols.
 - For matrix multiplication, state operand shapes, the contracted dimension, result shape, and what each remaining axis means.
 - Put executable examples in fenced code blocks with a language identifier. Keep recorded output synchronized with the code.
@@ -96,6 +97,12 @@ Run checks in proportion to the change. A document-editing task is complete only
 
 1. Inspect the complete changed document, not only the edited paragraph.
 2. Search for template remnants, malformed delimiters, prohibited macros, stale outputs, and obvious typos.
+   After changing bold emphasis in Korean text, this pattern should produce no output for each changed Markdown document:
+
+   ```bash
+   rg -n --pcre2 '`[^`\n]*`(*SKIP)(*F)|(?<![\p{L}\p{N}_*])\*\*(?!\s)(?:(?!\*\*).)+?\*\*(?=[\p{L}\p{N}])' path/to/changed.md
+   ```
+
 3. Run executable code examples with `python3` or the appropriate project virtual environment.
 4. Compare displayed numeric results and shapes with actual output.
 5. Verify every new or changed relative link points to an existing repository file.
