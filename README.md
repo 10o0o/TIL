@@ -2,7 +2,7 @@
 
 # KANT AI/ML Learning System
 
-강의 내용을 많이 옮겨 적는 저장소가 아니라,  
+강의 내용을 많이 옮겨 적는 저장소가 아니라,
 **자료 없이 설명하고, 직접 계산하고, 코드로 검증한 지식만 남기는 학습 시스템**입니다.
 
 [학습 가이드](./GUIDE.md) · [학습 지도](./curriculum/course-map.md) · [진행 현황](./curriculum/progress.md) · [Work Mode](./.agents/skills/kant-learning-cycle/SKILL.md)
