@@ -1,0 +1,4 @@
+interface:
+  display_name: "맞춤형 학습 코치"
+  short_description: "강의자료와 지식 개념을 현재 이해에 맞춰 단계적으로 가르칩니다"
+  default_prompt: "$teach-course-material을 사용해 지정한 강의자료나 knowledge 개념을 내 현재 이해에 맞춰 단계적으로 가르쳐줘."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "선택형 학습 실습 제안"
+  short_description: "학습 증거를 보고 필요할 때만 가장 작은 실습을 제안합니다"
+  default_prompt: "$suggest-learning-practice를 사용해 오늘의 이해 증거를 보고 추가 실습이 실제로 필요할 때만 하나 제안해줘."

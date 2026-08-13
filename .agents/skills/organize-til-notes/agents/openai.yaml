@@ -1,4 +1,0 @@
-interface:
-  display_name: "학습 기록 정리"
-  short_description: "기존 TIL의 질문과 표현을 살려 간단히 정리하고 검증합니다"
-  default_prompt: "$organize-til-notes를 사용해 이 TIL의 내용을 보존하면서 간단히 정리하고 검증해줘."

@@ -41,4 +41,4 @@
 - Post-training: SFT, LoRA, preference optimization
 - Evaluation: metric, failure analysis, contamination
 
-현재 무엇을 공부할지는 가장 최근 TIL과 실제 이해도를 보고 정합니다. GPT에게 조언을 구할 때는 최근 노트나 실습 결과를 보여주고 **다음에 공부할 것 하나만** 추천받습니다.
+현재 무엇을 공부할지는 가장 최근 TIL, `knowledge/`에 드러난 현재 이해, 실제 실습 결과를 보고 정합니다. 추가 실습은 성취 근거상 도움이 될 때만 하나 추천받고, 이미 충분하다면 다음 강의로 진행합니다.

@@ -7,21 +7,26 @@ This is a lightweight personal TIL repository for studying toward an LLM Researc
 ## Layout
 
 - `materials/`: source files. Copyrighted or private files belong in ignored `materials/private/`.
-- `til/`: short learning notes organized by area and date.
-- `practice/`: executed notebooks, Kaggle work, model experiments, and benchmarks.
+- `today.md`: ignored local scratchpad for free-form study writing; `$save-today-til` finalizes it.
+- `til/`: diary-like learning records organized by date as `til/YYYY/MM/YYYY-MM-DD.md`; keep its template at `til/template.md`.
+- `knowledge/`: topic-oriented, mutable notes representing the learner's current best understanding; keep its template at `knowledge/template.md`.
+- `practice/`: executed notebooks, Kaggle work, model experiments, and benchmarks; keep its template at `practice/template.ipynb`.
 - `ROADMAP.md`: broad learning direction, not a status tracker.
 - `USAGE.md`: concise instructions for writing TIL notes, storing practice, and using repository skills.
 - `archive/`: previous TIL notes; preserve them as read-only history unless the user requests a specific change.
-- `templates/`: a lightweight TIL template and a minimal Notebook template.
 
 The normal flow is:
 
 ```text
-study -> write a short TIL -> optionally get feedback
--> save substantial practice separately
+register source material -> audit and learn at the learner's level
+-> write freely in today.md -> finalize a dated TIL
+-> audit the learner's account and correct misconceptions
+-> decide whether one practice would add value -> run it only when useful
+-> update only understanding supported by learner-authored evidence
+-> optionally deepen a knowledge concept and update the same note only after new evidence
 ```
 
-No daily streak, promotion status, separate review log, progress table, or canonical-note gate is required.
+"No extra practice" and "no knowledge change" are valid outcomes. No daily streak, promotion status, separate review log, progress table, or canonical-note gate is required.
 
 ## Working rules
 
@@ -32,19 +37,36 @@ No daily streak, promotion status, separate review log, progress table, or canon
 - Do not relocate, delete, or rewrite existing `archive/` notes in bulk.
 - Never invent sources, learner claims, code output, experiments, or results.
 - Verify current recommendations such as Kaggle competitions, libraries, models, and tools.
+- Register private course PDFs under `materials/private/<course>/` with a stable lesson-prefixed filename such as `NN-NN_title.pdf`; verify that the whole file is readable and update that course's local `INDEX.md` when one exists.
 
 ## Tutoring
 
+- Keep source and understanding evaluation in `$coach-llm-research-study`, adaptive teaching in `$teach-course-material`, hands-on decisions in `$suggest-learning-practice`, and durable concept writing in `$update-learning-knowledge`.
+- When teaching a named source, read it completely, inspect relevant `knowledge/` and learner-authored evidence, reorder concepts for understanding, and teach a meaningful chunk before checking understanding.
+- When deepening an existing knowledge note, treat it as the learner's starting explanation rather than as an authoritative source; follow its related source when available and verify material claims as needed.
+- For reasoning tasks, start from the learner's attempt and use the smallest useful hint, then partial setup, then a full explanation when needed or requested. Fade from worked examples toward independent explanation or transfer as understanding grows. Answer direct definitions and blocking prerequisites directly.
 - Start from the learner's note when they provide one.
 - Say what is correct, what needs correction, and what useful idea is missing.
+- When auditing lesson material, distinguish errors, missing notation or assumptions, required prerequisites, acceptable simplifications, intentional deferrals, and LLM Research Engineer-relevant additions.
+- Locate each material finding by page, slide, section, formula, or code fragment. Verify uncertain or implementation-specific claims with primary sources.
+- Keep high-leverage concepts worth knowing now in the lesson evaluation; explicitly defer low-value advanced detail.
+- Base achievement judgments on learner explanations, correct examples or shapes, interpreted output, and transfer—not on lecture completion or note length.
 - Compress ordinary programming basics unless they affect shapes, gradients, numerical behavior, or model meaning.
 - For difficult topics, connect intuition, a small example, formulas and shapes, code, and actual ML/LLM use.
-- Suggest one fitting exercise instead of a long task list.
-- Use Kaggle when data handling, validation, metrics, or error analysis is the point; use local code or benchmarks for mechanics and systems topics.
+- Do not treat tutor-generated explanations as proof of learner knowledge. Update `knowledge/` only when explicitly requested and supported by the learner's own explanation, calculation, answer, or interpreted result.
+- After a finalized TIL is reviewed, distinguish what the learner demonstrated from what the tutor merely corrected. Use the former as evidence for practice and knowledge decisions.
+- Keep hands-on recommendations separate from lesson evaluation. When explicitly requested, make the practice decision only after meaningful learner evidence exists. Suggest at most one optional activity only if it would add value; recommending no extra practice is valid.
+- Use Kaggle only when data handling, validation, metrics, or error analysis is the point; use local code or benchmarks for mechanics and systems topics. Verify any current recommendation.
+- When a user requests the full daily flow, coordinate the separate skills in the order above; do not merge their responsibilities into a new orchestration skill.
 
-## Notes and practice
+## TIL, knowledge, and practice
 
-- Keep TIL files short. Delete unused template sections.
+- Treat TIL files as chronological history. Preserve the learner's voice, uncertainty, and what changed that day instead of rewriting them into textbook notes.
+- Use one TIL per study day under `til/YYYY/MM/`. Final notes follow `til/template.md`; natural prose is preferred inside its sections and empty optional sections may be omitted.
+- When the draft clearly distinguishes them, preserve `### 라이브 수업` and `### 보충 학습` under `오늘의 학습`; do not invent that distinction when it is absent.
+- Treat `today.md` as a local inbox, not a knowledge artifact. Reset it only after `$save-today-til` has written and validated the destination.
+- Treat `knowledge/` as the learner's current state of knowledge. Use one date-free file per reusable concept and revise outdated understanding in place.
+- Synthesize at most a few durable ideas into knowledge notes rather than copying an entire TIL. Not every TIL needs a corresponding knowledge note, and an explicit zero-change result is acceptable.
 - Short code may stay in a TIL; use `.ipynb` by default when the work deserves a separate practice file.
 - Use `.py` instead when repeatable execution, modularization, training jobs, or accurate systems benchmarking matters.
 - Record only observed results from code that actually ran.
@@ -60,7 +82,13 @@ No daily streak, promotion status, separate review log, progress table, or canon
 - Run the TIL validator when applicable:
 
 ```bash
-python3 .agents/skills/organize-til-notes/scripts/validate_til_markdown.py path/to/changed.md
+python3 .agents/skills/save-today-til/scripts/validate_til.py path/to/changed.md
+```
+
+- Run the knowledge validator when applicable:
+
+```bash
+python3 .agents/skills/update-learning-knowledge/scripts/validate_knowledge.py path/to/changed.md
 ```
 
 - Read changed files, run relevant code, and check `git diff --check` before finishing.

@@ -1,32 +1,73 @@
 # 사용법
 
+## 세 공간만 구분하기
+
+| 위치 | 남기는 것 | 성격 |
+|---|---|---|
+| `til/` | 오늘 무엇을 배우고 어떻게 생각했는지 | 날짜별 기록, 과거의 흔적 |
+| `knowledge/` | 지금 내가 그 개념을 어떻게 이해하는지 | 주제별 문서, 계속 갱신 |
+| `practice/` | 직접 실행한 코드, 출력, 그래프와 해석 | Notebook 중심의 증거 |
+
 ## 공부한 날
 
-1. `materials/`의 자료를 본다.
-2. [`templates/til.md`](./templates/til.md)를 복사해 짧게 정리한다.
-3. 필요하면 GPT에게 틀린 부분과 빠진 내용을 확인받아 같은 파일을 다듬는다.
-4. 코드나 실험이 길어지면 Notebook으로 `practice/`에 분리한다.
+1. KANT 라이브 수업을 듣습니다.
+2. 사용한 PDF를 `materials/private/<course>/`에 등록합니다.
+3. `$coach-llm-research-study`와 `$teach-course-material`로 자료를 점검하고 현재 이해 수준에 맞춰 학습합니다.
+4. 개념 단위로 설명을 듣고, 질문·계산·자기 설명을 통해 이해를 확인합니다.
+5. 루트 `today.md`에 라이브 수업과 보충 학습에서 얻은 것을 형식 없이 씁니다.
+6. `$save-today-til`로 날짜별 TIL을 저장합니다.
+7. `$coach-llm-research-study`로 PDF와 완성된 TIL을 비교합니다. 오개념이 있으면 `$teach-course-material`로 다시 설명받고 자기 말로 확인합니다.
+8. `$suggest-learning-practice`로 실습이 필요한지 판단합니다. 필요할 때만 제안된 한 가지를 수행합니다.
+9. `$update-learning-knowledge`로 실제로 이해했다고 확인된 내용만 `knowledge/`에 반영합니다.
+10. 새 지식 문서를 더 깊게 공부하고 싶다면 그 문서를 대상으로 다시 질문하고, 새 이해가 확인된 경우 같은 문서만 갱신합니다.
 
-매일 작성할 필요는 없습니다. 별도의 진도표나 복습 문서도 관리하지 않습니다.
+실습이 필요 없거나 새로 반영할 지식이 없다는 결론도 정상입니다. 별도의 진도표나 복습 문서를 만들지 않습니다.
+
+## 강의자료 등록
+
+비공개 강의자료는 Git에 올라가지 않는 다음 위치에 둡니다.
+
+```text
+materials/private/<course>/NN-NN_주제.pdf
+```
+
+파일을 옮긴 뒤 전체 페이지와 수식·표·코드·그림이 읽히는지 확인합니다. Notion에서 내보낸 자료라면 접힌 내용도 포함되어야 합니다. 과정 폴더에 `INDEX.md`가 있다면 새 파일명과 원본 위치를 함께 갱신합니다.
 
 ## TIL 작성
 
-주제별 폴더에 날짜와 주제가 드러나는 이름으로 저장합니다.
+하루에 파일 하나를 만들고 날짜가 쌓이는 구조로 저장합니다.
 
 ```text
-til/math/2026-08-13-vector.md
-til/ml/2026-08-20-data-split.md
-til/llm/2026-09-01-attention.md
+til/2026/08/2026-08-13.md
+til/2026/08/2026-08-20.md
+til/2026/09/2026-09-01.md
 ```
 
-노트에는 다음 정도만 있으면 충분합니다.
+처음부터 정해진 목차에 맞추지 않습니다. `today.md`에는 다음 내용이 자연스럽게 섞여도 됩니다.
 
-- 배운 것
-- 확인하거나 고친 것
-- 직접 해본 것
-- 다음에 볼 것
+- 오늘 본 자료와 이해한 내용
+- 처음 생각과 달라진 부분
+- 여전히 헷갈리는 점
+- 직접 계산하거나 실행해본 결과
+- 다음에 이어서 보고 싶은 것
 
-해당 내용이 없으면 템플릿의 섹션을 지웁니다. 짧은 코드는 TIL 안에 그대로 둡니다.
+저장할 때는 [`til/template.md`](./til/template.md)의 순서에 맞게 정리됩니다. `오늘의 학습`은 항상 남기고, 나머지 항목은 실제 내용이 있을 때만 남깁니다. 라이브 수업과 GPT 보충 학습을 구분해서 썼다면 `오늘의 학습` 안에서 그 구분을 유지합니다.
+
+TIL은 그날의 생각을 보존하는 기록입니다. 나중에 이해가 바뀌어도 과거 글 전체를 교과서처럼 다시 쓰지 않습니다. 짧게 정정하거나 새로운 날의 TIL에 남기고, 현재의 정확한 이해는 `knowledge/`에 반영합니다.
+
+## 지식 베이스 갱신
+
+다시 사용할 만한 개념은 날짜 없이 주제별 파일로 저장합니다.
+
+```text
+knowledge/math/vector.md
+knowledge/ml/data-split.md
+knowledge/llm/attention.md
+```
+
+[`knowledge/template.md`](./knowledge/template.md)를 사용합니다. 이곳은 강의를 그대로 옮기는 곳이 아니라 **지금의 내가 설명할 수 있는 가장 정확한 이해**를 적는 곳입니다. 새로 이해한 내용이 생기면 기존 문서를 고치고, 같은 개념의 문서를 중복해서 만들지 않습니다.
+
+모든 TIL을 지식 문서로 만들 필요는 없습니다. 여러 번 다시 볼 개념, 다른 개념의 기반이 되는 내용, 직접 설명하거나 적용해본 내용만 하루 최대 0~3개 반영합니다. GPT가 설명했을 뿐 아직 내가 설명하지 못한 내용은 반영하지 않습니다.
 
 ## 실습 저장
 
@@ -38,25 +79,120 @@ practice/ml/kaggle-titanic.ipynb
 practice/llm/attention-score.ipynb
 ```
 
-[`templates/practice.ipynb`](./templates/practice.ipynb)를 복사해서 사용할 수 있습니다. 반복 실행, 모듈화 또는 정확한 성능 측정이 중요한 training·systems 작업만 `.py`로 작성합니다.
+[`practice/template.ipynb`](./practice/template.ipynb)를 복사해서 사용할 수 있습니다. 반복 실행, 모듈화 또는 정확한 성능 측정이 중요한 training·systems 작업만 `.py`로 작성합니다. 관련 지식 문서가 있다면 Notebook 상단에 링크 하나만 남겨도 충분합니다.
 
 실행하지 않은 결과는 기록하지 않고, 데이터셋·모델 가중치·API 키·큰 출력 파일은 Git에 올리지 않습니다. Notebook 출력도 결과를 이해하는 데 필요한 것만 남깁니다.
 
 ## GPT 스킬
 
-### 학습 내용 피드백
+### 1. 강의자료와 지식 개념 맞춤 학습
 
-[`coach-llm-research-study`](./.agents/skills/coach-llm-research-study/SKILL.md)는 강의 자료와 TIL을 비교해 틀린 부분, 빠진 개념, 해볼 실습 하나를 제안합니다.
+[`teach-course-material`](./.agents/skills/teach-course-material/SKILL.md)은 관련 `knowledge/`, 최근 TIL과 현재 대화에서 확인되는 이해 수준을 바탕으로 강의를 재구성합니다. 이미 이해한 내용은 압축하고, 부족한 선수개념은 보충합니다. 생각할 가치가 있는 문제는 작은 힌트부터 시작하지만, 정의나 막힌 선수개념은 바로 설명합니다.
+
+강의자료의 오류와 누락도 함께 확인하려면 평가 스킬을 같이 사용합니다.
 
 ```text
-$coach-llm-research-study를 사용해 이 PDF와 내 TIL을 비교해줘.
-고칠 부분과 보충할 내용, 해볼 것 하나만 알려줘.
+$coach-llm-research-study와 $teach-course-material을 함께 사용해
+materials/private/kant-basic-math/01-01_벡터의_정의와_기하학적_해석.pdf를 학습하고 싶어.
+
+관련 knowledge와 최근 TIL에서 내 현재 이해를 먼저 확인하고,
+강의의 오류·누락·선수개념을 실제 설명에 반영해줘.
+한 번에 전부 설명하지 말고 개념 단위로 진행하면서 내 설명과 계산을 통해 이해를 확인해줘.
 ```
 
-### 기존 TIL 정리
+평가 결과는 필요한 곳에 `[정정]`과 `[보충]`으로 반영됩니다. 별도 평가 보고서까지 필요할 때만 요청합니다.
 
-[`organize-til-notes`](./.agents/skills/organize-til-notes/SKILL.md)는 이미 작성한 TIL의 내용과 표현을 보존하면서 구조, 수식, 코드, 링크를 정리합니다.
+기존 지식 문서에서 궁금한 부분을 더 배우는 데도 같은 학습 스킬을 사용합니다. 이때 지식 문서는 정답지가 아니라 현재 이해를 보여주는 출발점입니다.
 
 ```text
-$organize-til-notes를 사용해 이 TIL을 간결하게 정리하고 검증해줘.
+$coach-llm-research-study와 $teach-course-material을 사용해
+knowledge/math/vector.md에서 내가 이해한 범위를 먼저 확인하고,
+관련 강의자료와 연결해 부족한 부분을 대화형으로 가르쳐줘.
+```
+
+### 2. 오늘의 TIL 저장
+
+[`save-today-til`](./.agents/skills/save-today-til/SKILL.md)은 형식 없이 쓴 `today.md`를 적당히 분류하고 다듬어 `til/YYYY/MM/YYYY-MM-DD.md`에 저장합니다.
+
+```text
+$save-today-til을 사용해 today.md를 정리하고 날짜별 TIL로 저장해줘.
+```
+
+다른 초안이나 지난 날짜도 지정할 수 있습니다.
+
+```text
+$save-today-til을 사용해 rough.md를 2026-08-13 TIL로 저장해줘.
+```
+
+사용자의 말투, 질문, 계산, 코드와 실제 결과는 보존하고 맞춤법·문단·중복만 가볍게 정리합니다. 같은 날짜의 TIL이 있으면 기존 내용에 합칩니다. 루트 `today.md`에서 저장한 경우 검증이 성공한 뒤 초안만 초기화합니다.
+
+### 3. 저장한 TIL 평가
+
+[`coach-llm-research-study`](./.agents/skills/coach-llm-research-study/SKILL.md)는 PDF와 완성된 TIL을 비교하여 다음을 구분합니다.
+
+- 내가 독립적으로 이해했다고 보여준 것
+- GPT가 정정했지만 아직 내가 다시 설명하지 않은 것
+- 남아 있는 오개념과 불확실성
+- 판단을 바꾸기 위해 필요한 가장 작은 확인 질문
+
+```text
+$coach-llm-research-study를 사용해
+이 PDF와 오늘 저장한 TIL을 비교해줘.
+틀린 이해, 빠진 필수 개념과 지금 알면 좋은 연결을 확인하고,
+내가 실제로 이해했다고 볼 수 있는 부분과 아직 증거가 부족한 부분을 구분해줘.
+```
+
+강의자료 자체만 감사할 수도 있습니다. 평가 스킬은 전체 수업, 실습 제안 또는 지식 문서 작성을 대신하지 않습니다.
+
+### 4. 선택형 실습 판단
+
+[`suggest-learning-practice`](./.agents/skills/suggest-learning-practice/SKILL.md)는 학습 대화와 TIL에서 이해 증거가 나온 뒤 실행합니다. 추가 활동이 도움이 되는지 먼저 판단하고, 필요할 때만 가장 작은 실습 하나를 제안합니다.
+
+```text
+$suggest-learning-practice를 사용해 오늘의 학습 대화와 TIL 평가를 보고
+추가 실습이 실제로 도움이 될 때만 하나 제안해줘.
+이미 설명·적용·해석할 수 있다면 실습이 필요 없다고 이유와 함께 말해줘.
+```
+
+개념 오류가 있으면 실습보다 재설명을 우선합니다. 계산이나 shape이 부족하면 작은 손계산, 코드 연결이 부족하면 최소 Notebook, 현실 데이터로의 전이가 필요할 때만 작은 데이터셋이나 Kaggle을 고려합니다. 실습에는 완료 기준과 결과를 자기 말로 해석할 질문이 포함됩니다.
+
+스킬은 제안만 합니다. 실제 Notebook 생성, 데이터 다운로드 또는 Kaggle 참여는 사용자가 진행을 요청한 뒤 수행합니다.
+
+### 5. 확인된 이해를 knowledge에 반영
+
+[`update-learning-knowledge`](./.agents/skills/update-learning-knowledge/SKILL.md)는 TIL, 현재 대화의 답변, 계산과 실행 결과 중 학습자가 직접 보여준 이해만 골라 기존 지식 문서를 갱신하거나 새로 만듭니다.
+
+```text
+$update-learning-knowledge를 사용해
+오늘의 TIL, 평가 결과와 학습 대화에서 내가 이해했다고 확인된 개념만 knowledge에 반영해줘.
+증거가 부족하거나 기존 문서와 달라진 것이 없다면 파일을 만들지 말고 그렇게 알려줘.
+```
+
+한 학습 흐름에서 최대 0~3개만 다루고, 같은 개념은 기존 문서를 갱신합니다. GPT의 설명이나 정정만으로는 지식에 넣지 않습니다. 실습이 제안되었다면 수행하고 결과를 해석한 뒤 이 스킬을 실행하는 편이 좋습니다. 지식 문서를 대상으로 추가 학습한 뒤 새 이해를 직접 설명했다면 같은 스킬을 다시 실행해 기존 문서를 보완할 수 있습니다.
+
+## 가장 간단한 두 번의 요청
+
+수업 직후에는 다음 요청으로 시작합니다.
+
+```text
+$coach-llm-research-study와 $teach-course-material을 사용해
+이 강의자료를 내 현재 knowledge에 맞춰 오늘 학습하자.
+개념별로 진행하고 내 답변에서 확인된 이해와 불확실성을 구분해줘.
+```
+
+`today.md`를 쓴 뒤에는 다음 요청으로 마무리합니다.
+
+```text
+$save-today-til로 today.md를 저장한 뒤,
+$coach-llm-research-study로 강의자료와 TIL을 비교해줘.
+그 결과를 바탕으로 $suggest-learning-practice가 실습 필요 여부를 판단해줘.
+실습이 필요 없으면 $update-learning-knowledge로 확인된 이해만 반영하고,
+실습이 필요하면 한 가지만 제안하고 내가 선택할 때까지 기다려줘.
+```
+
+실습을 수행했다면 마지막으로 다음처럼 요청합니다.
+
+```text
+$update-learning-knowledge를 사용해 오늘의 TIL, 학습 대화와
+방금 실행한 실습에서 내가 설명하고 해석한 범위만 knowledge에 반영해줘.
 ```

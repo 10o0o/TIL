@@ -1,97 +1,58 @@
 #!/usr/bin/env python3
-"""Validate lightweight repository TIL Markdown files."""
+"""Validate this repository's canonical daily TIL Markdown format."""
 
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import re
 import sys
 from pathlib import Path
 from urllib.parse import unquote
 
 
-REQUIRED_FRONTMATTER_FIELDS = (
-    "title",
-    "date",
-    "tags",
+CANONICAL_HEADINGS = (
+    "오늘의 학습",
+    "배운 점",
+    "남은 질문",
+    "다음에 할 것",
+    "관련 기록",
 )
-
+REQUIRED_HEADINGS = {"오늘의 학습"}
+DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
+BOLD_BEFORE_KOREAN_RE = re.compile(r"\*\*(?!\s)(?:(?!\*\*).)+?\*\*(?=[가-힣])")
 PROHIBITED_MACRO_RE = re.compile(
     r"\\(?:operatorname|DeclareMathOperator|newcommand|renewcommand|def|require)\b"
 )
-INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
-BOLD_BEFORE_KOREAN_RE = re.compile(r"\*\*(?!\s)(?:(?!\*\*).)+?\*\*(?=[가-힣])")
-PLACEHOLDER_LINES = {
-    'title: "제목"',
-    "date: YYYY-MM-DD",
-    "- topic",
-    "# 제목",
-    "- 자료:",
-}
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Validate one or more TIL Markdown files or directories."
+        description="Validate a finalized daily TIL or til/template.md."
     )
-    parser.add_argument(
-        "paths",
-        nargs="+",
-        type=Path,
-        help="Markdown file or directory to validate",
-    )
+    parser.add_argument("paths", nargs="+", type=Path)
     return parser.parse_args()
 
 
-def collect_markdown_files(paths: list[Path]) -> tuple[list[Path], list[str]]:
+def collect_files(paths: list[Path]) -> tuple[list[Path], list[str]]:
     files: set[Path] = set()
     errors: list[str] = []
-
     for path in paths:
         if not path.exists():
             errors.append(f"{path}: path does not exist")
         elif path.is_dir():
-            files.update(candidate for candidate in path.rglob("*.md") if candidate.is_file())
+            errors.append(f"{path}: pass a Markdown file, not a directory")
         elif path.suffix.lower() != ".md":
             errors.append(f"{path}: expected a Markdown file")
         else:
             files.add(path)
-
     return sorted(files, key=lambda item: str(item)), errors
 
 
-def frontmatter_end(lines: list[str]) -> int | None:
-    if not lines or lines[0] != "---":
-        return None
-    for index in range(1, min(len(lines), 80)):
-        if lines[index] == "---":
-            return index
-    return None
-
-
-def check_frontmatter(path: Path, lines: list[str]) -> list[str]:
-    errors: list[str] = []
-    end = frontmatter_end(lines)
-    if end is None:
-        return [f"{path}: missing or unclosed YAML frontmatter"]
-
-    keys = {
-        match.group(1)
-        for line in lines[1:end]
-        if (match := re.match(r"^([A-Za-z][A-Za-z0-9_-]*):(?:\s|$)", line))
-    }
-    for field in REQUIRED_FRONTMATTER_FIELDS:
-        if field not in keys:
-            errors.append(f"{path}: frontmatter is missing '{field}'")
-
-    publish_lines = [line for line in lines[1:end] if line.startswith("publish:")]
-    if publish_lines and publish_lines[0] not in {"publish: true", "publish: false"}:
-        errors.append(f"{path}: publish must be true or false")
-
-    return errors
-
-
-def strip_fenced_and_inline_code(lines: list[str]) -> tuple[list[tuple[int, str]], list[str]]:
+def strip_fenced_and_inline_code(
+    lines: list[str],
+) -> tuple[list[tuple[int, str]], list[str]]:
     visible: list[tuple[int, str]] = []
     errors: list[str] = []
     in_fence = False
@@ -102,8 +63,7 @@ def strip_fenced_and_inline_code(lines: list[str]) -> tuple[list[tuple[int, str]
             if not in_fence:
                 in_fence = True
                 opening_line = line_number
-                marker = line.lstrip()
-                if marker == "```":
+                if line.lstrip() == "```":
                     errors.append(
                         f"line {line_number}: opening code fence needs a language identifier"
                     )
@@ -115,7 +75,6 @@ def strip_fenced_and_inline_code(lines: list[str]) -> tuple[list[tuple[int, str]
 
     if in_fence:
         errors.append(f"line {opening_line}: unclosed fenced code block")
-
     return visible, errors
 
 
@@ -158,7 +117,6 @@ def check_math_and_emphasis(path: Path, visible: list[tuple[int, str]]) -> list[
 
     if block_math_open:
         errors.append(f"{path}:{block_math_line}: unclosed block math delimiter")
-
     return errors
 
 
@@ -172,10 +130,8 @@ def normalize_link_target(raw_target: str) -> str:
 
 
 def extract_link_targets(line: str) -> list[str]:
-    """Extract Markdown link targets while allowing balanced parentheses."""
     targets: list[str] = []
     cursor = 0
-
     while True:
         start = line.find("](", cursor)
         if start == -1:
@@ -208,13 +164,113 @@ def check_links(path: Path, visible: list[tuple[int, str]]) -> list[str]:
     for line_number, line in visible:
         for raw_target in extract_link_targets(line):
             target = normalize_link_target(raw_target)
-            if not target or target.startswith(("#", "http://", "https://", "mailto:", "data:")):
+            if not target or target.startswith(
+                ("#", "http://", "https://", "mailto:", "data:")
+            ):
                 continue
             destination = (path.parent / target).resolve()
             if not destination.exists():
                 errors.append(
                     f"{path}:{line_number}: relative link target does not exist: {target}"
                 )
+    return errors
+
+
+def date_from_target_path(path: Path) -> tuple[str | None, list[str]]:
+    errors: list[str] = []
+    parts = path.resolve().parts
+    candidates: list[tuple[str, str, str]] = []
+    for index, part in enumerate(parts[:-3]):
+        if part == "til":
+            candidates.append(tuple(parts[index + 1 : index + 4]))
+
+    if not candidates:
+        return None, [f"{path}: expected path til/YYYY/MM/YYYY-MM-DD.md"]
+
+    year, month, filename = candidates[-1]
+    date_text = Path(filename).stem
+    if not DATE_RE.fullmatch(date_text):
+        return None, [f"{path}: filename must be YYYY-MM-DD.md"]
+
+    try:
+        parsed_date = dt.date.fromisoformat(date_text)
+    except ValueError:
+        return None, [f"{path}: filename contains an invalid calendar date"]
+
+    if year != f"{parsed_date.year:04d}" or month != f"{parsed_date.month:02d}":
+        errors.append(f"{path}: year/month directories do not match the filename date")
+    return date_text, errors
+
+
+def heading_schema(
+    path: Path,
+    lines: list[str],
+    visible: list[tuple[int, str]],
+    is_template: bool,
+) -> list[str]:
+    errors: list[str] = []
+    top_headings = [
+        (line_number, line[2:].strip())
+        for line_number, line in visible
+        if re.match(r"^#\s+\S", line)
+    ]
+    if len(top_headings) != 1:
+        errors.append(
+            f"{path}: expected exactly one top-level heading, found {len(top_headings)}"
+        )
+
+    expected_date = "YYYY-MM-DD" if is_template else None
+    if not is_template:
+        expected_date, path_errors = date_from_target_path(path)
+        errors.extend(path_errors)
+
+    if expected_date and top_headings:
+        expected_title = expected_date
+        if top_headings[0][1] != expected_title:
+            errors.append(
+                f"{path}:{top_headings[0][0]}: top-level heading must be '# {expected_title}'"
+            )
+
+    headings = [
+        (line_number, match.group(1).strip())
+        for line_number, line in visible
+        if (match := re.match(r"^##(?!#)\s+(.+?)\s*$", line))
+    ]
+    names = [name for _, name in headings]
+    unknown = [name for name in names if name not in CANONICAL_HEADINGS]
+    for name in unknown:
+        errors.append(f"{path}: unknown level-two heading: {name}")
+
+    for name in CANONICAL_HEADINGS:
+        if names.count(name) > 1:
+            errors.append(f"{path}: duplicate level-two heading: {name}")
+
+    required = set(CANONICAL_HEADINGS) if is_template else REQUIRED_HEADINGS
+    for name in required:
+        if name not in names:
+            errors.append(f"{path}: missing required section: {name}")
+
+    recognized = [name for name in names if name in CANONICAL_HEADINGS]
+    expected_order = [name for name in CANONICAL_HEADINGS if name in recognized]
+    if recognized != expected_order:
+        errors.append(f"{path}: level-two sections are not in canonical order")
+
+    if not is_template:
+        if lines and lines[0].strip() != f"# {expected_date}":
+            errors.append(f"{path}: the first line must be the date heading")
+        if any("<!--" in line or "-->" in line for line in lines):
+            errors.append(f"{path}: template comments remain in the finalized note")
+
+        for index, (line_number, name) in enumerate(headings):
+            next_line = headings[index + 1][0] if index + 1 < len(headings) else len(lines) + 1
+            body = [
+                line.strip()
+                for line in lines[line_number: next_line - 1]
+                if line.strip()
+            ]
+            if not body:
+                errors.append(f"{path}:{line_number}: section is empty: {name}")
+
     return errors
 
 
@@ -229,42 +285,19 @@ def validate_file(path: Path) -> list[str]:
     if not text.endswith("\n"):
         errors.append(f"{path}: missing final newline")
 
-    errors.extend(check_frontmatter(path, lines))
     visible, fence_errors = strip_fenced_and_inline_code(lines)
     errors.extend(f"{path}:{message}" for message in fence_errors)
     errors.extend(check_math_and_emphasis(path, visible))
     errors.extend(check_links(path, visible))
-
-    frontmatter_boundary = frontmatter_end(lines)
-    body_start = (frontmatter_boundary + 1) if frontmatter_boundary is not None else 0
-    top_headings = [
-        line_number
-        for line_number, line in visible
-        if line_number > body_start and re.match(r"^#\s+\S", line)
-    ]
-    if len(top_headings) != 1:
-        errors.append(f"{path}: expected exactly one top-level heading, found {len(top_headings)}")
-
-    for line_number, line in visible:
-        if line.strip() in PLACEHOLDER_LINES:
-            errors.append(f"{path}:{line_number}: template placeholder remains")
-
+    errors.extend(heading_schema(path, lines, visible, path.name == "template.md"))
     return errors
 
 
 def main() -> int:
     args = parse_args()
-    files, errors = collect_markdown_files(args.paths)
-    if not files and not errors:
-        errors.append("no Markdown files found")
-
+    files, errors = collect_files(args.paths)
     for path in files:
-        file_errors = validate_file(path)
-        if "templates" in path.parts:
-            file_errors = [
-                error for error in file_errors if "template placeholder remains" not in error
-            ]
-        errors.extend(file_errors)
+        errors.extend(validate_file(path))
 
     if errors:
         for error in errors:
@@ -272,7 +305,7 @@ def main() -> int:
         print(f"Validation failed with {len(errors)} error(s).", file=sys.stderr)
         return 1
 
-    print(f"Validated {len(files)} Markdown file(s): OK")
+    print(f"Validated {len(files)} TIL Markdown file(s): OK")
     return 0
 
 

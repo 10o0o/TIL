@@ -2,6 +2,7 @@
   "markdown.copyFiles.destination": {
     "/archive/**/*": "${documentWorkspaceFolder}/assets/${documentBaseName}/${fileName}",
     "/til/**/*": "${documentWorkspaceFolder}/assets/${documentBaseName}/${fileName}",
+    "/knowledge/**/*": "${documentWorkspaceFolder}/assets/${documentBaseName}/${fileName}",
     "/practice/**/*": "${documentWorkspaceFolder}/assets/${documentBaseName}/${fileName}"
   },
   "markdown.editor.filePaste.copyIntoWorkspace": "mediaFiles",
