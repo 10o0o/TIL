@@ -1,12 +1,13 @@
 # Curriculum
 
-이 디렉터리는 강의 날짜가 아니라 **개념의 선수지식과 현재 이해 상태**를 기준으로 학습 순서를 관리합니다.
+이 디렉터리는 강의 날짜가 아니라 **개념의 선수지식과 현재 이해 상태를** 기준으로 학습 순서를 관리합니다.
 
 ## 파일
 
 - [source-index.md](./source-index.md): 프로젝트에 업로드한 PDF와 강의 자료 인덱스
 - [course-map.md](./course-map.md): 개념 dependency graph와 우선순위
 - [progress.md](./progress.md): 개념별 학습 상태와 다음 행동
+- [note-inventory.md](./note-inventory.md): 기존 노트의 실제 목록, 중복·오분류 후보, 점진적 migration 계획
 
 ## 갱신 원칙
 
@@ -15,6 +16,7 @@
 3. 설명·적용·구현·복습 결과가 생겼을 때만 `progress.md` 상태를 변경합니다.
 4. 문서가 존재한다는 이유로 학습 상태를 올리지 않습니다.
 5. 전체 PDF 분석 단계에서는 `concepts/` 문서를 대량 생성하지 않습니다.
+6. 기존 파일의 이동이나 통합은 `note-inventory.md`에 먼저 기록하고 한 개념씩 검증합니다.
 
 ## 우선순위
 

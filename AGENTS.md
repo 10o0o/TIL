@@ -1,85 +1,91 @@
 # Repository Guidelines
 
-## Purpose
+## Purpose and Scope
 
-This repository is an active-learning knowledge system for the author's transition from software engineering to AI/ML/LLM research engineering.
+This repository is a personal AI/ML/LLM learning record. Its goal is not to maximize the number or length of lecture summaries, but to preserve durable understanding and evidence that the author can recall, explain, apply, implement, and later reproduce what was learned.
 
-The primary outcome is not a large number of lecture summaries. The primary outcome is evidence that the author can:
+Apply these priorities across the repository:
 
-- explain a concept without notes
-- apply it to a new numeric, tensor-shape, or interpretation problem
-- connect formulas to Python, NumPy, or PyTorch
-- implement or debug code when implementation matters
-- reproduce the knowledge after a delayed review
+1. Preserve the author's files, learning history, assets, and unrelated work.
+2. Treat lecture PDFs and existing notes as sources, not automatic proof of mastery.
+3. Keep explanations accurate and readable in Korean.
+4. Verify formulas, Tensor shapes, code output, links, and Markdown structure in proportion to the change.
+5. Keep documents compatible with both VS Code preview and GitHub.
+6. Make narrow, explicitly authorized changes.
 
-Read `GUIDE.md` before substantial learning-system changes.
+This root file applies to the entire repository. Use a nested `AGENTS.md` or `AGENTS.override.md` only when a subtree requires stricter or different rules.
 
-## Repository Sources of Truth
+## Repository Layout
 
-- `curriculum/`: concept inventory, prerequisites, priority, and learning status
-- `concepts/`: one canonical document per mastered concept
-- `til/`: short logs of changed understanding
-- `labs/`: executed code and experiments
-- `reviews/`: delayed recall and weekly review
-- `content/`: preserved v1 lecture and concept notes; treat as legacy source material
-- `archive/README.md`: migration policy
-- `templates/`: document templates
-- `.agents/skills/kant-learning-cycle/`: primary active-learning workflow
-- `.agents/skills/organize-til-notes/`: secondary single-document maintenance workflow
+- `content/`: preserved lecture-order and concept-oriented legacy notes; do not reorganize in bulk.
+- `concepts/`: one current, canonical note per concept after learning evidence exists.
+- `til/`: short daily logs of changed understanding, not lecture transcripts.
+- `labs/`: executable experiments, observed outputs, and interpretations.
+- `curriculum/`: source inventory, prerequisite map, progress, and migration planning.
+- `reviews/`: delayed recall and spaced-review records.
+- `templates/`: concise TIL, concept, lab, and review templates.
+- `assets/`: repository-local images and other document media.
+- `.agents/skills/organize-til-notes/`: existing workflow for an explicitly requested note revision or consolidation.
+- `.vscode/settings.json`: repository-only editor settings.
+- `README.md`: concise public entry point.
+- `GUIDE.md`: the learner's operating manual.
 
-## Default Workflow
+Do not add a repository Skill, prompt wrapper, or agent configuration to imitate the ChatGPT Work UI or its execution mode. The repository stores learning artifacts and instructions only.
 
-Use `$kant-learning-cycle` for:
+Use the repository-scoped `organize-til-notes` Skill only when a request involves organizing, revising, consolidating, or validating a specific learning document. It is not a repository implementation of the ChatGPT UI or an autonomous learning mode.
 
-- analyzing multiple lecture PDFs
-- curriculum and dependency mapping
-- prerequisite diagnosis
-- adaptive concept tutoring
-- numeric and Tensor-shape exercises
-- teach-back assessment
-- progress tracking
-- selective legacy migration
-- creation of minimal TIL, concept, lab, and review artifacts
+## Working Agreements
 
-Use `$organize-til-notes` only for an explicitly named existing document or a verified one-concept migration.
+- Resolve exact paths with `rg --files` before acting. Korean spelling, spaces, brackets, and parentheses in filenames are significant.
+- Do not rename, relocate, delete, or rewrite existing learning documents or assets in bulk.
+- Record suspected misclassification or duplication in `curriculum/note-inventory.md` before considering a move.
+- Do not move a legacy file until its relative links and inbound references have been checked.
+- Treat explanation, review, diagnosis, and feasibility requests as read-only unless the user also asks for a change.
+- When editing is requested, modify the exact authorized target and preserve existing questions, examples, calculations, confusion points, and intent.
+- Preserve unrelated working-tree changes. If safe separation is impossible, stop and ask the user.
+- Do not invent references, results, confusion points, experiments, applications, or mastery evidence.
+- Store pasted document media under `assets/` through the repository VS Code settings and use repository-relative links.
 
-Do not create a long lecture summary by default.
+## Learning Evidence
 
-## Learning Evidence Rules
+Use these terms consistently:
 
-Use these status meanings consistently:
+- `seen`: encountered in a source or legacy note.
+- `recognized`: understandable while looking at an explanation.
+- `explained`: accurately explained without the source.
+- `applied`: used to solve a new numeric, shape, interpretation, or debugging problem.
+- `implemented`: implemented or debugged in a minimal executable example.
+- `retained`: explained and applied again after a delayed review.
 
-- `seen`: encountered
-- `recognized`: understandable with support
-- `explained`: explained accurately without notes
-- `applied`: solved a new example
-- `implemented`: implemented or debugged
-- `retained`: reproduced after delayed review
+A Markdown file, polished prose, commit, or long study session is not by itself evidence of understanding.
 
-A file's existence, length, polish, or commit date is not evidence of mastery.
+Before creating or materially expanding a canonical concept note, require evidence for both `explained` and `applied`. Code-heavy concepts may also require `implemented`. If the evidence is missing, keep the progress status honest and leave the unresolved question visible.
 
-Before creating or materially expanding a canonical note, obtain `explained` and `applied` evidence. Code-heavy topics may require `implemented`.
+Prefer this learning order:
 
-When evidence is missing:
+```text
+closed-book recall
+→ diagnostic questions
+→ explanation of identified gaps
+→ small numeric example
+→ formula and Tensor shapes
+→ code or application problem
+→ learner teach-back
+→ minimum justified documentation
+→ spaced review
+```
 
-- update only `curriculum/progress.md`
-- keep the status honest
-- leave the unresolved question visible
-- do not fill templates with plausible-sounding content
+## Artifact Boundaries
 
-## Writing Boundaries
+- Keep one canonical concept per file and search for an existing note before creating another.
+- Keep TIL entries focused on a changed mental model: prior misunderstanding, corrected understanding, evidence, remaining question, and next review date.
+- Create a lab only for code that was actually executed. Record the command, relevant environment assumptions, observed output, and interpretation.
+- Use `curriculum/` for PDF-wide mapping and progress, not long concept explanations.
+- Use `reviews/` for delayed recall results, including failures and status downgrades.
+- Do not backfill missed dates or create a file merely to satisfy a template.
+- Preserve `content/` as source history. Migrate one concept at a time only when it becomes relevant and the learner has revalidated it.
 
-- Preserve the author's original questions, examples, intermediate calculations, and learning history.
-- Do not invent confusion points, experiment results, citations, or practical uses.
-- Keep one canonical concept per file.
-- Search for an existing concept file before creating a new one.
-- Keep TIL files to changed understanding rather than lecture transcription.
-- Do not backfill missed dates for completeness.
-- Keep executed code and outputs in `labs/`.
-- Keep large PDF-wide mapping work in `curriculum/`.
-- Preserve `content/` paths unless relocation is explicitly requested and all affected links are repaired.
-
-## Teaching and Explanation Rules
+## Teaching, Mathematics, and Code
 
 For difficult ML, DL, mathematics, or LLM concepts, prefer:
 
@@ -88,72 +94,40 @@ problem
 → motivation
 → intuition
 → small numeric example
-→ formula and term meanings
+→ exact definition and formula
 → Tensor shapes and axis meanings
 → code mapping
 → actual ML/LLM use
 → learner teach-back
 ```
 
-Compress ordinary programming basics unless they affect broadcasting, shape, gradient flow, numerical behavior, or model semantics.
-
-When using a metaphor, distinguish it from the actual Tensor, operation, learned parameter, and output.
-
-When explaining library internals, distinguish:
-
-1. the mathematical object being computed
-2. a hand calculation for a small example
-3. the numerical algorithm used by the library
+- Compress ordinary programming basics unless they affect broadcasting, shape, gradient flow, numerical behavior, or model semantics.
+- When using a metaphor, distinguish it from the actual Tensor, operation, learned parameter, and output.
+- When explaining library internals, distinguish the mathematical object, a small hand calculation, and the numerical algorithm used by the library.
+- For matrix or Tensor operations, state operand shapes, contracted or broadcast dimensions, result shape, and the meaning of every remaining axis.
+- Distinguish `@` from `*`, inner product from cosine similarity, raw scores from normalized scores, and pedagogical simplification from actual implementation.
+- Run executable examples when safe. Never present inferred output as executed output.
 
 ## Markdown Compatibility
 
-GitHub rendering is the compatibility target.
+GitHub rendering is the compatibility target. Rendering correctly in VS Code alone is not sufficient.
 
-- Use `$...$` for inline mathematics.
-- Use `$$...$$` on separate lines for block mathematics.
-- Prefer supported commands such as `\frac`, `\sqrt`, `\mathbf`, `\mathrm`, `\text`, `\begin{bmatrix}`, and `\begin{aligned}`.
-- Do not define custom MathJax macros.
-- Do not use `\(...\)` or `\[...\]`.
-- Escape underscores inside roman math text.
-- In Markdown tables, use `\lVert` and `\rVert` rather than literal norm bars.
-- Keep math delimiters and fenced code blocks balanced.
-- Give each fenced code block a language identifier.
-- Use one top-level heading in finished learning documents.
-- Keep relative links resolvable from the file's directory.
-
-## Mathematics and Tensor Rules
-
-For matrix or Tensor operations, include:
-
-- each operand shape
-- the dimension being contracted or broadcast
-- the result shape
-- the semantic meaning of each remaining axis
-- the mapping between the formula and code
-
-Distinguish precisely:
-
-- element-wise multiplication and matrix multiplication
-- inner product and cosine similarity
-- logits, raw scores, probabilities, and normalized weights
-- statistical bias and a neural-network bias parameter
-- derivative, partial derivative, gradient, and Jacobian
-- pedagogical simplification and actual model implementation
-
-## Code and Experiment Rules
-
-- Run executable examples when safe.
-- Do not record inferred output as executed output.
-- Compare displayed values, array contents, and shapes with the actual result.
-- Use a small reproducible script when a notebook is unnecessarily large.
-- Record environment-specific assumptions.
-- Put substantial experiments under `labs/` and link them from concept notes.
+- Use `$...$` for inline mathematics and `$$...$$` on separate lines for block mathematics.
+- Prefer broadly supported MathJax commands such as `\frac`, `\sqrt`, `\mathbf`, `\mathrm`, `\text`, `\begin{bmatrix}`, and `\begin{aligned}`.
+- Do not use the custom operator macro formed by a backslash followed by `operatorname`; use `\mathrm{softmax}`, `\mathrm{rank}`, `\mathrm{Var}`, or similar roman text.
+- Do not define document macros with `\DeclareMathOperator`, `\newcommand`, `\renewcommand`, `\def`, or `\require`.
+- Escape underscores inside roman text, for example `\mathrm{cosine\_similarity}`.
+- In Markdown tables, use `\lVert` and `\rVert` for norms instead of literal vertical bars that can split cells.
+- Do not use `\(...\)` or `\[...\]`; standardize on dollar-sign delimiters.
+- Keep math delimiters and fenced code blocks balanced. Give opening code fences a language identifier.
+- When Korean text immediately follows bold emphasis, include the particle or ending inside the bold delimiters, or place whitespace or punctuation after the closing marker.
+- Use one top-level heading in a finished learning document and keep relative links resolvable from the document's directory.
 
 ## Verification
 
-Run checks in proportion to the change.
+Run checks in proportion to the change and report any check that could not be run.
 
-For applicable Markdown learning documents:
+For changed TIL or concept documents compatible with the existing schema, run the repository validator with exact paths:
 
 ```bash
 python3 .agents/skills/organize-til-notes/scripts/validate_til_markdown.py path/to/changed.md
@@ -161,49 +135,51 @@ python3 .agents/skills/organize-til-notes/scripts/validate_til_markdown.py path/
 
 Also complete the checks that apply:
 
-1. read the complete changed file
-2. execute relevant code and compare output
-3. verify changed relative links and repository-local assets
-4. run `git diff --check`
-5. review `git status --short`, `git diff --name-only`, and `git diff --stat`
+1. Inspect every changed file from top to bottom.
+2. Check heading hierarchy, fenced code blocks, frontmatter/YAML, and relative links.
+3. Run executable examples and compare recorded values, shapes, and output with actual execution.
+4. Run `git diff --check`.
+5. Review `git status --short`, `git diff --name-only`, and `git diff --stat`.
 
-Do not claim GitHub rendering was visually verified unless the committed page was actually inspected on GitHub.
+If a Markdown linter is available, run it on changed documents. Do not claim GitHub rendering was visually verified unless the rendered GitHub page was actually inspected.
 
-## Git and Commit Rules
+## Commit Rules
 
-Do not modify unrelated files.
+Do not commit or push unless the user explicitly asks. A request to commit does not imply permission to push.
 
-Use these commit prefixes:
+Use `<type>: <concise imperative summary>` with these preferred types:
 
-- `learn`: add evidence-backed learning artifacts
-- `til`: add a short changed-understanding log
-- `lab`: add or revise an experiment
-- `review`: record delayed recall
-- `docs`: update repository-level guidance or curriculum
-- `fix`: correct factual, mathematical, code, link, or rendering errors
-- `chore`: tooling or maintenance without learning-content changes
+- `til`: add a short changed-understanding log.
+- `learn`: add an evidence-backed concept artifact.
+- `lab`: add or revise an executable experiment.
+- `review`: record delayed recall.
+- `fix`: correct factual, mathematical, link, output, or rendering problems.
+- `docs`: update repository-level documentation, instructions, curriculum, or templates.
+- `chore`: change settings or tooling without changing learning content.
 
-Before committing:
+Keep one logical change per commit. Before committing:
 
-1. inspect status and diff
-2. stage only authorized exact paths
-3. run applicable validation
-4. keep one logical change per commit
+1. Run `git status --short`.
+2. Stage only explicitly authorized files using exact paths.
+3. Confirm scope with `git diff --cached --name-status`.
+4. Review the complete staged diff.
+5. Run `git diff --cached --check`.
+6. Commit only after required validation succeeds.
 
-Do not force-push, rewrite, reset, or delete learning history unless explicitly requested.
+Never use `git add .` or `git add -A` when unrelated work exists. After committing, report the commit hash, subject, included files, and remaining uncommitted changes. Do not amend, rewrite, reset, or force-push history unless the user explicitly requests it.
 
-## Review Priorities
+## Code Review Rules
 
 Flag:
 
-- a polished note without learning evidence
-- duplicate concept documents
+- polished notes without learning evidence
+- duplicate canonical concepts
 - lecture-order organization that hides prerequisites
-- incorrect formulas, shapes, axes, or code outputs
-- unsupported claims or fabricated experiments
-- broken links or missing assets
-- placeholders presented as finished content
-- accidental changes to dates, publication state, or unrelated notes
-- a TIL that has become a full lecture transcription
+- formulas, shapes, code results, or prose that contradict executable examples
+- broken relative links or missing repository-local assets
+- accidental changes to dates, publication status, filenames, or unrelated notes
+- placeholder text presented as finished content
+- unsupported claims or copied material without a necessary source
+- broad rewrites that remove the author's intent
 
-Recommend the smallest safe correction.
+For each issue, explain the concrete failure and recommend the smallest safe correction.

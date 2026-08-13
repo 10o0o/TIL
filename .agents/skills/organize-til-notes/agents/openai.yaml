@@ -1,4 +1,4 @@
 interface:
-  display_name: "TIL 강의 노트 정리"
-  short_description: "강의 초안을 검증된 한국어 TIL 문서로 정리합니다"
-  default_prompt: "$organize-til-notes를 사용해 이 강의 초안을 한국어 TIL 문서로 정리하고 검증해줘."
+  display_name: "학습 기록 정리"
+  short_description: "검증된 이해 변화나 특정 노트를 알맞은 학습 기록으로 정리합니다"
+  default_prompt: "$organize-til-notes를 사용해 이 학습 기록의 근거를 보존하고 생성 기준을 확인해줘. 통과하면 최소 문서로 정리·검증하고, 통과하지 않으면 문서를 만들지 말고 부족한 증거를 알려줘."

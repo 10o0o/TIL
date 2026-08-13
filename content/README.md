@@ -12,4 +12,4 @@
 
 기존 문서는 한꺼번에 다시 쓰지 않습니다. 같은 개념을 다시 학습할 때 필요한 파일만 골라 canonical note로 통합합니다.
 
-마이그레이션 원칙은 [`../archive/README.md`](../archive/README.md)를 참고합니다.
+현재 파일별 분류, 중복·오분류·placeholder 후보와 점진적 마이그레이션 순서는 [`../curriculum/note-inventory.md`](../curriculum/note-inventory.md)를 참고합니다. 후보로 기록된 파일도 안전한 링크 검토와 학습자 검증 전에는 이동하지 않습니다.

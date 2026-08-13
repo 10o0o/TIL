@@ -1,138 +1,92 @@
 <div align="center">
 
-# KANT AI/ML Learning System
+# Today I Learned
 
-강의 내용을 많이 옮겨 적는 저장소가 아니라,
-**자료 없이 설명하고, 직접 계산하고, 코드로 검증한 지식만 남기는 학습 시스템**입니다.
+AI·ML·LLM Research Engineer를 목표로,
+**회상·설명·적용·구현·복습으로 확인한 학습 결과를** 기록합니다.
 
-[학습 가이드](./GUIDE.md) · [학습 지도](./curriculum/course-map.md) · [진행 현황](./curriculum/progress.md) · [Work Mode](./.agents/skills/kant-learning-cycle/SKILL.md)
+[학습 운영 가이드](./GUIDE.md) · [학습 지도](./curriculum/course-map.md) · [진행 현황](./curriculum/progress.md) · [기존 노트 조사](./curriculum/note-inventory.md)
 
 </div>
 
 ---
 
-## 이 저장소의 역할
+## 저장소의 목적
 
-KANT 강의 PDF와 수업 자료는 학습의 **입력(source)** 입니다. 이 저장소는 입력을 그대로 복제하지 않고 다음 결과만 보관합니다.
+강의 PDF와 수업 자료는 학습의 원본(source), ChatGPT 프로젝트는 설명과 진단을 돕는 tutor, 이 GitHub 저장소는 학습 결과와 검증 증거를 남기는 장소입니다.
 
-- 하나의 개념을 중복 없이 설명하는 canonical note
-- 자료 없이 회상한 뒤 바뀐 이해를 적은 짧은 TIL
-- 수식과 Tensor 연산을 실제로 확인한 코드 및 실험
-- 며칠 뒤에도 설명할 수 있는지 확인한 복습 기록
+따라서 이 저장소는 강의 내용을 순서대로 옮긴 요약 모음을 목표로 하지 않습니다. 문서의 수나 길이보다 다음을 중요하게 봅니다.
 
-노트 분량과 커밋 수는 진도가 아닙니다. 이해의 기준은 **설명, 적용, 구현, 유지(retention)** 입니다.
+- 자료 없이 핵심을 설명할 수 있는가
+- 처음 보는 숫자·Tensor shape·적용 문제를 해결할 수 있는가
+- 필요한 개념을 최소 코드로 구현하거나 디버깅할 수 있는가
+- 며칠 뒤에도 다시 설명하고 적용할 수 있는가
 
-## 먼저 읽을 문서
+설명을 보며 이해한 상태는 출발점일 뿐, Markdown 문서를 작성했다는 사실 자체는 이해의 증거가 아닙니다.
 
-처음에는 [GUIDE.md](./GUIDE.md)만 읽으면 됩니다. 그 문서에는 다음이 모두 들어 있습니다.
+## 현재 학습 목표
 
-1. 강의 PDF를 프로젝트에 올린 뒤 무엇을 요청할지
-2. 매 수업을 어떤 순서로 학습할지
-3. `concepts/`, `til/`, `labs/`, `reviews/` 중 어디에 기록할지
-4. 기존 긴 TIL을 어떻게 처리할지
-5. `$kant-learning-cycle` Work Mode를 어떻게 사용할지
-6. 이해 완료 여부를 어떤 기준으로 판단할지
+- 주력: LLM Systems / Inference Optimization
+- 확장: Post-training / Evaluation
+- 기반: 선형대수, 확률·통계, 머신러닝 일반화, PyTorch, Transformer
+
+기초 개념은 수식에서 끝내지 않고 Tensor 연산, PyTorch 구현, Transformer/LLM에서의 역할, 시스템 또는 평가 지표에 미치는 영향까지 연결합니다.
 
 ## 학습 루프
 
 ```text
-강의 PDF / 기존 노트
-        ↓
-자료 없이 회상
-        ↓
-진단 질문으로 빈틈 확인
-        ↓
-직관 → 작은 숫자 → 수식·shape → 코드
-        ↓
-새 문제에 적용
-        ↓
-내 말로 다시 설명
-        ↓
-통과한 내용만 최소 기록
-        ↓
-1·3·7·14일 뒤 재검증
+closed-book recall
+→ diagnostic questions
+→ 부족한 부분 설명
+→ 작은 숫자 예제
+→ 수식과 shape
+→ 코드 또는 적용 문제
+→ learner teach-back
+→ 최소한의 문서화
+→ 1·3·7·14일 spaced review
 ```
 
-## 저장소 구조
+자세한 판단 기준과 그대로 복사해 쓸 수 있는 ChatGPT 요청 예시는 [GUIDE.md](./GUIDE.md)에 있습니다.
 
-```text
-.
-├── curriculum/          # 전체 개념 지도, PDF 인덱스, 진행 상태
-├── concepts/            # 개념별 단일 기준 문서
-├── til/                 # 그날 바뀐 이해만 기록하는 짧은 로그
-├── labs/                # 실행 가능한 코드, 계산, 실험
-├── reviews/             # 주간 및 간격 반복 복습
-├── content/             # 기존 v1 강의 중심 노트: 보존용 레거시 자료
-├── archive/             # 마이그레이션 및 보존 정책
-├── templates/           # concept, TIL, lab, review 템플릿
-├── .agents/skills/      # 저장소 전용 Work Mode와 보조 스킬
-├── GUIDE.md             # 앞으로의 학습 운영 설명서
-└── AGENTS.md            # 저장소를 수정하는 에이전트의 작업 규칙
-```
+## 저장 구조
 
-## 문서별 역할
-
-| 위치 | 작성 시점 | 담는 내용 | 담지 않는 내용 |
-|---|---|---|---|
-| `curriculum/` | 전체 지도를 만들거나 상태가 변할 때 | 선수지식, 우선순위, 학습 상태 | 긴 개념 설명 |
-| `concepts/` | 설명과 적용을 통과한 뒤 | 개념별 최신 이해 | 강의 순서, 날짜별 로그 |
-| `til/` | 실제로 이해가 바뀐 날 | 오개념, 수정된 이해, 증거, 다음 질문 | 강의 전체 요약 |
-| `labs/` | 코드를 실행하거나 실험했을 때 | 가설, 코드, 출력, 해석 | 실행하지 않은 예상 결과 |
-| `reviews/` | 간격 복습 및 주간 회고 때 | 회상 성공·실패, 상태 변경 | 새 강의 복사 |
-| `content/` | 새로 작성하지 않음 | 과거 노트와 원본 학습 기록 | 신규 canonical note |
-
-## 학습 상태
-
-| 상태 | 의미 |
+| 위치 | 역할 |
 |---|---|
-| `seen` | 읽거나 수업에서 본 적이 있음 |
-| `recognized` | 설명을 보면 이해됨 |
-| `explained` | 자료 없이 내 말로 설명 가능 |
-| `applied` | 새로운 숫자 예제나 문제에 적용 가능 |
-| `implemented` | 최소 코드로 구현하거나 디버깅 가능 |
-| `retained` | 며칠 뒤에도 설명·적용 가능 |
+| `content/` | 기존 강의 순서·개념 기반 문서와 학습 이력 보존 |
+| `concepts/` | 설명과 적용을 통과한 개념별 canonical note |
+| `til/` | 그날 실제로 바뀐 이해를 적는 짧은 learning log |
+| `labs/` | 실행 가능한 코드, 실제 출력, 해석 |
+| `curriculum/` | 자료 목록, 선수지식 지도, 진행 상태, migration 계획 |
+| `reviews/` | 1·3·7·14일 복습과 주간 회고 |
+| `templates/` | TIL, concept, lab, review의 최소 템플릿 |
+| `assets/` | 기존 문서가 참조하는 이미지와 미디어 |
 
-파일이 존재한다는 이유만으로 상태를 올리지 않습니다. 현재 상태는 [curriculum/progress.md](./curriculum/progress.md)에서 관리합니다.
+## 새 기록을 만드는 기준
 
-## Work Mode
+| 상황 | 저장소 행동 |
+|---|---|
+| 읽었지만 자료 없이 설명하지 못함 | `curriculum/progress.md`만 정직하게 갱신 |
+| 오개념이나 이해가 실제로 바뀜 | `til/`에 frontmatter 제외 핵심 내용 5~15줄 기록 |
+| 하나의 개념을 설명하고 새 문제에 적용함 | 기존 `concepts/`를 갱신하거나 하나만 생성 |
+| 코드가 이해의 핵심이고 실제로 실행함 | `labs/`에 재현 가능한 실험 저장 |
+| 시간이 지난 뒤 다시 회상·적용함 | `reviews/`와 progress 갱신 |
+| 새 증거도, 바뀐 이해도 없음 | 아무 문서도 만들지 않음 |
 
-새 강의 학습, PDF 전체 재구성, 진단, 개념 문서 생성에는 저장소 스킬을 사용합니다.
+## 기존 `content/` 문서
 
-```text
-$kant-learning-cycle
-```
+기존 문서는 삭제 대상이 아니라 과거의 질문, 계산, 혼동, 설명을 보존한 source입니다.
 
-이 모드는 설명부터 시작하지 않습니다. 먼저 기존 지식과 선수지식을 진단하고, 적용 및 teach-back을 거친 뒤 필요한 파일만 갱신합니다.
+- 이번 정비에서 기존 노트와 이미지를 이동하거나 다시 쓰지 않습니다.
+- 같은 개념을 다시 학습할 때만 관련 내용을 검증해 canonical note로 점진 통합합니다.
+- 원본은 링크 안정성과 학습 이력 보존을 위해 남깁니다.
+- 오분류·중복·placeholder 후보와 안전한 처리 순서는 [note-inventory.md](./curriculum/note-inventory.md)에 기록합니다.
 
-기존 긴 노트 하나를 명시적으로 다듬거나 canonical note로 이관할 때만 다음 보조 스킬을 사용합니다.
+## 빠른 시작
 
-```text
-$organize-til-notes
-```
+1. 강의 PDF를 source로 준비하고 노트는 닫습니다.
+2. [GUIDE.md](./GUIDE.md)의 closed-book 질문에 5~10분 답합니다.
+3. ChatGPT에 진단 질문을 요청한 뒤, 틀린 부분과 빠진 선수지식만 설명받습니다.
+4. 작은 숫자·shape·코드 또는 적용 문제를 풀고 자료 없이 teach-back합니다.
+5. 위 표의 생성 기준을 통과한 파일만 최소한으로 남기고 다음 복습일을 예약합니다.
 
-## 기존 노트 처리 원칙
-
-`content/`의 기존 문서는 삭제하거나 전면 재작성하지 않습니다.
-
-- 신규 학습은 새 구조에서 시작합니다.
-- 과거 날짜의 TIL을 소급해서 채우지 않습니다.
-- 같은 개념을 다시 공부할 때만 기존 노트에서 유효한 내용을 추출합니다.
-- canonical note로 통합한 뒤에도 원본 경로는 링크 안정성을 위해 당분간 보존합니다.
-
-자세한 정책은 [archive/README.md](./archive/README.md)를 참고합니다.
-
-## 현재 목표
-
-- 주력: LLM Systems / Inference Optimization Research Engineer
-- 보조: Post-training / Evaluation
-- 장기: Efficient LLM Algorithms / Architecture Research
-
-따라서 개념을 배울 때 항상 다음 연결을 확인합니다.
-
-```text
-수학적 의미
-→ Tensor 연산과 shape
-→ PyTorch 구현
-→ Transformer/LLM에서의 위치
-→ 시스템 또는 평가 관점의 실제 영향
-```
+현재 개념 순서는 [course-map.md](./curriculum/course-map.md), 실제 증거와 다음 행동은 [progress.md](./curriculum/progress.md)에서 확인합니다.

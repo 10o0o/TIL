@@ -1,4 +1,0 @@
-interface:
-  display_name: "KANT 학습 Work Mode"
-  short_description: "진단, 개념 학습, 적용, teach-back, 최소 기록을 한 사이클로 관리합니다"
-  default_prompt: "$kant-learning-cycle을 사용해 현재 KANT 학습 자료를 진단하고, 다음 개념 하나를 능동학습 방식으로 진행해줘. 설명 전에 이해도를 확인하고, 적용과 teach-back을 통과한 뒤에만 필요한 저장소 파일을 갱신해줘."

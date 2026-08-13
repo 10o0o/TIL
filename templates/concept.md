@@ -7,12 +7,13 @@ category: concept
 tags:
   - topic
 publish: false
-status: seen
 prerequisites:
   - prerequisite
 ---
 
 # 개념 제목
+
+<!-- explained와 applied 증거가 있을 때만 만듭니다. 해당 없는 선택 섹션은 삭제합니다. -->
 
 ## 해결하려는 문제
 
@@ -65,4 +66,4 @@ Tensor 연산이라면 다음을 함께 적습니다.
 - 적용:
 - 구현:
 - 마지막 복습:
-- 현재 상태: `seen`
+- progress 기록: `curriculum/progress.md`의 해당 항목
