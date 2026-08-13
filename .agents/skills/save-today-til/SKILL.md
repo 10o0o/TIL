@@ -1,6 +1,6 @@
 ---
 name: save-today-til
-description: Parse a freely written Markdown study draft, especially this repository's root today.md, into the canonical Korean TIL template and save or merge it at til/YYYY/MM/YYYY-MM-DD.md. Use only when the user explicitly invokes $save-today-til or explicitly asks to finalize, file, or save a named rough note as a daily TIL. Do not use for tutoring feedback, factual auditing, knowledge-base synthesis, practice recommendations, or generic Markdown editing.
+description: Parse a freely written Markdown study draft, especially a file named today.md, into the canonical Korean TIL template, save or merge it at til/YYYY/MM/YYYY-MM-DD.md, commit that dated TIL, and reset the source today.md after success. Use only when the user explicitly invokes $save-today-til or explicitly asks to finalize, file, or save a named rough note as a daily TIL. Do not use for tutoring feedback, factual auditing, knowledge-base synthesis, practice recommendations, or generic Markdown editing.
 ---
 
 # Save Today TIL
@@ -66,17 +66,17 @@ Keep pre-save factual evaluation in `$coach-llm-research-study`, reusable concep
 - If the destination exists, read it fully and merge new material into the matching sections. Preserve existing content and remove only clear duplication. Never overwrite the file wholesale.
 - Resolve relative links from the source location and rewrite them relative to the destination. Do not create a link unless its target is known.
 - Use `apply_patch` for the note and other text changes.
-- Do not delete or reset the source until the destination passes validation.
-- After a successful save from the root `today.md`, replace it with only:
+- Do not reset the source until the destination passes validation and its dated TIL commit succeeds.
+- After those steps succeed, if the source file's basename is `today.md`—including an explicitly named repository-relative path such as `til/today.md`—replace it with only:
 
 ```markdown
 <!-- 형식 없이 자유롭게 작성하세요. 저장할 때 $save-today-til을 사용합니다. -->
 ```
 
-- Leave any other named source file unchanged unless the user explicitly asks to remove or reset it.
-- Do not update `knowledge/`, create a practice file, commit, or push as part of this skill unless the user explicitly requests that separate action.
+- Leave a named source whose basename is not `today.md` unchanged unless the user explicitly asks to remove or reset it.
+- Do not update `knowledge/`, create a practice file, or push as part of this skill unless the user explicitly requests that separate action.
 
-## Validate and report
+## Validate, commit, and report
 
 Run from the repository root:
 
@@ -85,4 +85,13 @@ python3 .agents/skills/save-today-til/scripts/validate_til.py til/YYYY/MM/YYYY-M
 git diff --check -- til/YYYY/MM/YYYY-MM-DD.md
 ```
 
-Read the final file once more. Report the saved path, whether an existing daily note was merged, whether `today.md` was reset, and any check that could not be completed.
+Read the final file once more, then commit only the exact dated TIL:
+
+1. Run `git status --short` and preserve all unrelated worktree and staged changes.
+2. Stage only `til/YYYY/MM/YYYY-MM-DD.md`.
+3. Inspect `git diff --cached --name-status -- til/YYYY/MM/YYYY-MM-DD.md` and run `git diff --cached --check -- til/YYYY/MM/YYYY-MM-DD.md`.
+4. Commit only that path with the message `til: YYYY-MM-DD 학습 기록`. Use a path-limited commit so unrelated staged changes cannot enter the commit.
+5. If the dated TIL has no change to commit, do not create an empty commit. Leave the source unchanged and report that no new commit was created.
+6. Do not push.
+
+After the commit succeeds, reset the source when its basename is `today.md`. Read the reset source and inspect the created commit's changed paths. Report the saved path, whether an existing daily note was merged, the commit hash, whether `today.md` was reset, and any check that could not be completed.

@@ -58,6 +58,7 @@ problem -> why it is needed -> intuition -> small numerical example
 - Start from the problem the concept solves, not from terminology alone.
 - Use two- or three-dimensional vectors, small matrices, a few tokens, or one or two neurons before scaling up.
 - Define every relevant symbol and state what each value means.
+- Render mathematics with balanced `$...$` or `$$...$$` delimiters and verify the final response for unmatched delimiters before sending. Use explicit braces for styled symbols such as `\mathbf{v}`. When adjoining Korean particles or prose could make an inline formula render ambiguously, rewrite the sentence so the formula has a clear boundary or place the formula in a separate display block.
 - For Tensor operations, show input and output shapes, name each axis, and explain why the result must have that shape.
 - Map important formulas to NumPy or PyTorch line by line when code improves understanding.
 - Run safe examples before claiming output. Distinguish hand calculation, conceptual algorithm, and actual library implementation.
