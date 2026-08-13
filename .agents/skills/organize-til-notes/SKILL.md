@@ -15,7 +15,7 @@ Clean up one explicitly requested note without replacing the learner's thinking 
 4. Correct factual, mathematical, shape, code-output, link, and Markdown errors.
 5. Remove empty template sections and unnecessary repetition.
 
-Do not move or rewrite unrelated notes. Preserve existing `content/` files unless the user explicitly requests a move.
+Do not move or rewrite unrelated notes. Preserve existing `archive/` files unless the user explicitly requests a change.
 
 ## Keep it light
 

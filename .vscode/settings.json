@@ -1,10 +1,8 @@
 {
   "markdown.copyFiles.destination": {
-    "/content/**/*": "${documentWorkspaceFolder}/assets/${documentBaseName}/${fileName}",
-    "/concepts/**/*": "${documentWorkspaceFolder}/assets/${documentBaseName}/${fileName}",
+    "/archive/**/*": "${documentWorkspaceFolder}/assets/${documentBaseName}/${fileName}",
     "/til/**/*": "${documentWorkspaceFolder}/assets/${documentBaseName}/${fileName}",
-    "/labs/**/*": "${documentWorkspaceFolder}/assets/${documentBaseName}/${fileName}",
-    "/reviews/**/*": "${documentWorkspaceFolder}/assets/${documentBaseName}/${fileName}"
+    "/practice/**/*": "${documentWorkspaceFolder}/assets/${documentBaseName}/${fileName}"
   },
   "markdown.editor.filePaste.copyIntoWorkspace": "mediaFiles",
   "markdown.copyFiles.overwriteBehavior": "nameIncrementally"

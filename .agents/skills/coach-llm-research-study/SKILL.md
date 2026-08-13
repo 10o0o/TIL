@@ -43,7 +43,7 @@ When the user asks to save the result:
 - Keep private or copyrighted sources under `materials/private/`.
 - Create or update one short file under `til/<area>/`.
 - Put substantial executed code or experiments under `practice/`.
-- Preserve existing `content/` files as previous notes.
+- Preserve existing `archive/` files as previous TIL history.
 - Use `ROADMAP.md` only when broad direction is requested.
 
 Do not create separate progress, review, evidence, or canonical-concept documents. Do not create an experiment record for code that was never run.

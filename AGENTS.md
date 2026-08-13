@@ -10,7 +10,7 @@ This is a lightweight personal TIL repository for studying toward an LLM Researc
 - `til/`: short learning notes organized by area and date.
 - `practice/`: code, Kaggle work, model experiments, and benchmarks that were actually run.
 - `ROADMAP.md`: broad learning direction, not a status tracker.
-- `content/`: previous long-form notes; preserve them.
+- `archive/`: previous TIL notes; preserve them as read-only history unless the user requests a specific change.
 - `templates/`: lightweight TIL and practice templates.
 
 The normal flow is:
@@ -28,7 +28,7 @@ No daily streak, promotion status, separate review log, progress table, or canon
 - Preserve unrelated working-tree changes.
 - Treat review and explanation requests as read-only unless the user asks for edits.
 - Use `apply_patch` for text edits.
-- Do not rename, relocate, delete, or rewrite existing `content/` notes in bulk.
+- Do not relocate, delete, or rewrite existing `archive/` notes in bulk.
 - Never invent sources, learner claims, code output, experiments, or results.
 - Verify current recommendations such as Kaggle competitions, libraries, models, and tools.
 

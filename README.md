@@ -12,7 +12,7 @@ LLM Research Engineer를 목표로 공부하면서 배운 내용과 실습을 �
 | [`til/`](./til/) | 공부한 내용을 주제별로 정리한 짧은 노트 |
 | [`practice/`](./practice/) | 직접 실행한 코드, Kaggle, 모델 실험 |
 | [`ROADMAP.md`](./ROADMAP.md) | LLM Research Engineer 학습 방향 참고 |
-| [`content/`](./content/) | 예전에 작성한 긴 노트 보관 |
+| [`archive/`](./archive/) | 구버전 TIL 보관 |
 
 실제로 자주 쓰는 곳은 `til/`과 `practice/` 두 곳입니다.
 
