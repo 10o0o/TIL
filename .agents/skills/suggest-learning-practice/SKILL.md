@@ -1,62 +1,94 @@
 ---
 name: suggest-learning-practice
-description: Assess demonstrated understanding from TIL entries, learner answers, lesson feedback, knowledge notes, and executed work, then decide whether one optional hands-on activity would add meaningful learning value. Use only when the user asks whether practice is needed, requests practice only if useful, asks what to try after a lesson, or requests a Notebook, Kaggle, implementation, project, or benchmark suggestion. Decide after learner evidence exists, recommend at most one activity, and explicitly recommend no extra practice when the evidence or expected value does not justify one.
+description: Assess one explicitly supplied, finalized dated TIL and its linked learning sources, decide whether practice adds meaningful value, and create one tailored .ipynb workbook by default when it does. Use only when the user invokes $suggest-learning-practice with the exact til/YYYY/MM/YYYY-MM-DD.md path and wants a practice decision, Notebook, Kaggle task, implementation, project, ablation, or benchmark. Require that canonical TIL as input; never infer the latest TIL or accept today.md. Choose a Core, Applied, or Advanced workbook from demonstrated understanding, and create no file when reteaching, more evidence, or no additional practice is the better outcome.
 ---
 
-# Suggest Learning Practice
+# Build an Adaptive Practice Workbook
 
-Act as an optional practice coach. A recommendation is a possible outcome, not a required section.
+Use the learner's finalized TIL as the entry point. Practice is optional; creating a useful workbook is the default action when the evidence supports practice.
 
-## Gather evidence
+## Require one finalized TIL
 
-1. Read the relevant lesson or feedback, recent TIL, current `knowledge/` note, and executed `practice/` result when available. Do not scan unrelated history.
-2. Look for independent explanation, correct notation and shapes, a worked example, interpreted output, and transfer to a slightly different situation.
-3. Do not equate lecture completion, copied notes, note length, or confidence with mastery. Never invent work or results.
-4. State when evidence is insufficient. Ask for one small piece of evidence or suggest a tiny diagnostic check instead of assigning a project blindly.
-5. Make the practice decision after a meaningful explain-back, calculation, interpreted output, finalized TIL, or equivalent evidence. Do not assign a project merely because a lesson started.
+1. Require the user to name exactly one repository file at `til/YYYY/MM/YYYY-MM-DD.md`.
+2. Do not infer “today,” select the newest TIL, accept `today.md`, or substitute the current conversation for the required file.
+3. Read the whole TIL and validate it with:
 
-Leave lecture auditing, misconception correction, and “지금 알면 좋은 개념” to `$coach-llm-research-study`; leave full course teaching to `$teach-course-material`.
+```bash
+python3 .agents/skills/save-today-til/scripts/validate_til.py til/YYYY/MM/YYYY-MM-DD.md
+```
 
-## Decide whether practice adds value
+4. Resolve and read the relevant source links under `관련 기록`, especially `materials/` links. Follow only knowledge and practice links that bear on today's concepts.
+5. For a source-based lesson, require at least one resolvable source link. If it is missing or broken, stop and ask the learner to identify or repair the source instead of guessing.
+6. Treat the TIL as learner evidence, not as an infallible source. Do not turn copied text, tutor prose, lecture completion, confidence, or note length into proof of understanding.
 
-Recommend no extra activity when:
+Leave source auditing and misconception correction to `$coach-llm-research-study`, adaptive teaching to `$teach-course-material`, and durable concept writing to `$update-learning-knowledge`.
 
-- existing work already demonstrates the target skill;
-- the next lesson will exercise the concept naturally;
-- a conceptual error should be corrected before implementation;
-- setup or data wrangling would obscure the intended idea;
-- the expected learning value is too small for the effort.
+## Decide before creating
 
-Recommend one activity when there is a clear gap between explaining and applying, the concept benefits from observed behavior, or the learner is ready to transfer it to a realistic setting.
+Look for the learner's own explanation, correct notation and shapes, a worked calculation, interpreted output, and transfer to a changed example. Choose exactly one outcome:
 
-Use this decision order:
+- **재학습 우선**: a prerequisite or misconception blocks meaningful implementation. Create no Notebook and name the first concept to revisit.
+- **증거 확인 우선**: the TIL does not show enough understanding to scope useful practice. Create no Notebook and ask one small diagnostic question.
+- **추가 실습 없음**: the learner can already explain, apply, and interpret the target, or the next lesson will exercise it naturally. Create no file and state the evidence.
+- **워크북 생성**: a specific gap can be tested through calculation, code, comparison, transfer, or interpretation. Create one Notebook without asking for a second confirmation.
 
-- Missing prerequisite or conceptual misconception: recommend no implementation yet and hand the gap back for teaching or correction.
-- Can explain the idea but cannot calculate or track shapes: use one hand calculation or tiny Tensor check.
-- Can calculate but cannot map the idea to code: use one minimal Notebook.
-- Can run code but cannot interpret behavior or outputs: use one comparison, ablation, or error-analysis Notebook.
-- Can implement the mechanics but has not transferred them to realistic data: use one small dataset task; consider Kaggle only here when its workflow is relevant.
-- Can explain, apply, and interpret the result in a changed context: explicitly recommend no extra practice and proceed.
+If the user explicitly asks for a decision only, report the decision without creating a file.
 
-## Choose the smallest fitting activity
+## Choose the depth
 
-- Mathematics or Tensor shapes: one hand calculation or minimal NumPy/PyTorch Notebook.
-- Classical ML, validation, metrics, or error analysis: a small dataset experiment; use Kaggle only when an end-to-end data workflow is the learning objective.
-- Deep learning or Transformer mechanics: a minimal implementation, ablation, or debugging Notebook.
-- LLM systems: a controlled latency, throughput, memory, batching, or KV-cache benchmark.
-- Post-training: a small controlled SFT or LoRA comparison.
+Use the smallest depth that produces new evidence, not automatically the shortest task.
 
-Do not recommend Kaggle by habit or for leaderboard performance alone. Before naming a current competition, dataset, library, or tool, verify that it still exists, is accessible, and fits the exact concept. Prefer a local Notebook when it isolates the learning goal better.
+- **Core**: verify one mechanism with a hand calculation, tiny Tensor, or minimal implementation. Use when the gap is between explanation, shapes, calculation, and code.
+- **Applied**: include a baseline and one changed condition on small realistic data. Use when mechanics are understood but data handling, metrics, validation, or result interpretation needs evidence.
+- **Advanced**: include a baseline plus one research-style question such as an ablation, sensitivity test, failure-case analysis, efficiency trade-off, or reproducibility check. Use only when Core foundations are already demonstrated and the added investigation serves the learner's LLM Research Engineer goal.
 
-## Make one optional recommendation
+Applied and Advanced workbooks are cumulative: preserve a simple baseline before adding complexity. Do not choose Advanced merely because it sounds more valuable.
+
+Match the activity to the domain:
+
+- mathematics or Tensor shapes: small NumPy/PyTorch calculation and interpretation;
+- classical ML: controlled dataset experiment, validation, metrics, or error analysis;
+- deep learning or Transformer mechanics: minimal implementation, ablation, or debugging task;
+- LLM systems: controlled latency, throughput, memory, batching, or KV-cache comparison;
+- post-training: small controlled SFT, preference, or LoRA comparison.
+
+Use Kaggle only when an end-to-end data workflow, validation, metrics, or error analysis is the learning target. Verify a named current competition, dataset, library, or tool before putting it in a workbook. Never optimize for leaderboard rank as the learning objective.
+
+## Create one Notebook workbook
+
+When `워크북 생성` is the outcome:
+
+1. Search `practice/` for an existing workbook on the same task. Never overwrite learner code, outputs, or reflections.
+2. Create one primary artifact at `practice/<area>/<topic>.ipynb`, using `practice/template.ipynb` as the structural baseline. Keep the filename stable and descriptive; add a narrower focus when the generic path already exists.
+3. Put these items in the Notebook:
+   - links to the exact TIL and the source materials followed from it;
+   - selected level: Core, Applied, or Advanced;
+   - the learner evidence and gap that make the task useful now;
+   - one learning question, prerequisites, and observable completion criteria;
+   - an execution-before-prediction prompt;
+   - ordered instructions, starter code or TODO cells, and a progressive hint section;
+   - prompts to compare prediction with observation, explain the result, identify one limitation, and state what belongs in `knowledge/` if understanding is confirmed;
+   - for Advanced only, one explicit hypothesis and one controlled extension such as an ablation or error analysis.
+4. Keep the target concept larger than setup and data wrangling. A Notebook may reference a supporting `.py` file only when accurate benchmarking or repeatable jobs require one; the workbook remains the primary artifact.
+5. Do not include a complete solution, invented output, hidden answer, fabricated metric, or claimed result. Leave all code cells unexecuted with `execution_count: null` and empty `outputs` unless the user separately asks to run the experiment.
+6. Do not enroll in Kaggle, download data, start paid compute, or use credentials unless the user explicitly requests that external action.
+
+## Validate and report
+
+Validate a created workbook with:
+
+```bash
+python3 -m json.tool practice/<area>/<topic>.ipynb >/dev/null
+git diff --check -- practice/<area>/<topic>.ipynb
+```
+
+Read the final Notebook and confirm that every source link resolves, all code cells are unexecuted, and no answer or result was invented.
 
 Report concisely:
 
-1. **판단**: 추가 실습이 필요한지 여부;
-2. **근거**: learner evidence and the specific gap, or why no task is needed;
-3. **선택 제안**: only when useful—one activity and why it fits now;
-4. **완료 기준**: the smallest observable result plus one explanation, prediction, or interpretation in the learner's own words.
+1. **판단**: no practice, reteaching first, evidence first, or workbook created;
+2. **근거**: the exact learner evidence and gap from the TIL;
+3. **워크북**: path and selected depth when created;
+4. **시작점**: the first prediction or task the learner should complete.
 
-Label the activity as optional. Keep setup smaller than the target concept and do not provide a menu, backlog, numeric mastery score, or mandatory schedule. “추가 실습 없이 다음 강의로 진행” is a valid recommendation and must include the evidence that justified stopping.
-
-Do not create files, enroll in a competition, download data, or run an experiment unless the user asks. When saving authorized work, use `practice/<area>/<topic>.ipynb` by default and `.py` only for repeatable jobs or accurate systems benchmarks. Record only observed results from code that actually ran.
+Do not provide a menu, backlog, numeric mastery score, or mandatory schedule. Do not commit or push unless the user separately asks.

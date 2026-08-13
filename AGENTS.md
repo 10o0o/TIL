@@ -21,7 +21,8 @@ The normal flow is:
 register source material -> audit and learn at the learner's level
 -> write freely in today.md -> review the draft against its sources
 -> resolve or mark important uncertainty -> finalize a dated TIL
--> decide whether one practice would add value -> run it only when useful
+-> pass that exact TIL to the practice coach -> create one adaptive workbook only when useful
+-> run and interpret the workbook when one was created
 -> update only understanding supported by learner-authored evidence
 -> optionally deepen a knowledge concept and update the same note only after new evidence
 ```
@@ -59,7 +60,9 @@ register source material -> audit and learn at the learner's level
 - Give a pre-save verdict of `저장 가능`, `수정 후 저장`, or `추가 확인 후 저장`. Resolve one important misconception at a time with `$teach-course-material`; update the draft only after the learner demonstrates or explicitly confirms the corrected understanding. An unresolved point may instead remain clearly labeled as uncertainty.
 - Treat `$save-today-til` as a formatter and filer, not a factual reviewer. In the normal daily flow, run the pre-save review first. If the current conversation still has unresolved blocking findings, do not finalize them as factual claims unless the user explicitly chooses to preserve them as uncertainty.
 - After review, distinguish what the learner demonstrated from what the tutor merely corrected. Use only the former as evidence for practice and knowledge decisions.
-- Keep hands-on recommendations separate from lesson evaluation. When explicitly requested, make the practice decision only after meaningful learner evidence exists. Suggest at most one optional activity only if it would add value; recommending no extra practice is valid.
+- Keep hands-on work separate from lesson evaluation. `$suggest-learning-practice` requires one explicitly named, validated `til/YYYY/MM/YYYY-MM-DD.md`; never infer the latest note or accept `today.md`. Follow its exact source links and stop rather than guessing when a source-based TIL has no resolvable material.
+- Invoking `$suggest-learning-practice` authorizes one unexecuted Notebook workbook by default when practice adds value, unless the user asks for a decision only. Choose Core, Applied, or Advanced from demonstrated understanding, use the smallest sufficient depth, and create no file when reteaching, more learner evidence, or no extra practice is the better outcome.
+- Build the workbook from `practice/template.ipynb` at `practice/<area>/<topic>.ipynb`. Link the exact TIL and its sources, explain why the task fits now, provide ordered instructions, starter code, progressive hints, completion criteria, and interpretation prompts. Do not overwrite learner work, include a full answer, invent output, execute the Notebook, or commit it unless separately asked.
 - Use Kaggle only when data handling, validation, metrics, or error analysis is the point; use local code or benchmarks for mechanics and systems topics. Verify any current recommendation.
 - When a user requests the full daily flow, coordinate the separate skills in the order above; do not merge their responsibilities into a new orchestration skill.
 
@@ -68,10 +71,11 @@ register source material -> audit and learn at the learner's level
 - Treat TIL files as chronological history. Preserve the learner's voice, uncertainty, and what changed that day instead of rewriting them into textbook notes.
 - Use one TIL per study day under `til/YYYY/MM/`. Final notes follow `til/template.md`; natural prose is preferred inside its sections and empty optional sections may be omitted.
 - When the draft clearly distinguishes them, preserve `### 라이브 수업` and `### 보충 학습` under `오늘의 학습`; do not invent that distinction when it is absent.
+- For source-based study, keep an exact resolvable source link under the finalized TIL's `관련 기록`; that TIL is the required entry point for later practice.
 - Treat `today.md` as a local inbox, not a knowledge artifact. Reset it only after `$save-today-til` has written and validated the destination.
 - Treat `knowledge/` as the learner's current state of knowledge. Use one date-free file per reusable concept and revise outdated understanding in place.
 - Synthesize at most a few durable ideas into knowledge notes rather than copying an entire TIL. Not every TIL needs a corresponding knowledge note, and an explicit zero-change result is acceptable.
-- Short code may stay in a TIL; use `.ipynb` by default when the work deserves a separate practice file.
+- Short code may stay in a TIL; use `.ipynb` as the primary artifact for generated practice workbooks.
 - Use `.py` instead when repeatable execution, modularization, training jobs, or accurate systems benchmarking matters.
 - Record only observed results from code that actually ran.
 - Keep datasets, model weights, credentials, and large generated files out of Git unless explicitly authorized and appropriate.

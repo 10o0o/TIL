@@ -51,6 +51,8 @@ Follow the headings and order in `til/template.md`.
 - Put explicit uncertainty, questions, and unresolved contradictions under `남은 질문`.
 - Put only next actions the learner actually wrote under `다음에 할 것`.
 - Put only real source, knowledge, or practice links under `관련 기록`.
+- For a source-based session, preserve each explicitly named source link. When the exact repository source is known from the draft or the reviewed learning context and exists, add or rewrite its link under `관련 기록` relative to the dated TIL.
+- Before finalizing a source-based session, require at least one resolvable source link, normally under `materials/`. If the exact source cannot be determined, ask instead of guessing. This requirement does not apply to source-free study such as an independent coding reflection.
 - Keep `오늘의 학습`. Omit any other section when the draft contains no supporting content.
 - When classification is uncertain, keep the content under `오늘의 학습` instead of inventing structure.
 - For multiple topics, use `###` subheadings only when they materially improve scanning.
@@ -64,7 +66,7 @@ Keep pre-save factual evaluation in `$coach-llm-research-study`, reusable concep
 
 - If the destination does not exist, create it from the template with all placeholders removed.
 - If the destination exists, read it fully and merge new material into the matching sections. Preserve existing content and remove only clear duplication. Never overwrite the file wholesale.
-- Resolve relative links from the source location and rewrite them relative to the destination. Do not create a link unless its target is known.
+- Resolve relative links from the source location and rewrite them relative to the destination. Do not create a link unless its target is known and exists.
 - Use `apply_patch` for the note and other text changes.
 - Do not reset the source until the destination passes validation and its dated TIL commit succeeds.
 - After those steps succeed, if the source file's basename is `today.md`—including an explicitly named repository-relative path such as `til/today.md`—replace it with only:
