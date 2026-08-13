@@ -8,10 +8,11 @@ This is a lightweight personal TIL repository for studying toward an LLM Researc
 
 - `materials/`: source files. Copyrighted or private files belong in ignored `materials/private/`.
 - `til/`: short learning notes organized by area and date.
-- `practice/`: code, Kaggle work, model experiments, and benchmarks that were actually run.
+- `practice/`: executed notebooks, Kaggle work, model experiments, and benchmarks.
 - `ROADMAP.md`: broad learning direction, not a status tracker.
+- `USAGE.md`: concise instructions for writing TIL notes, storing practice, and using repository skills.
 - `archive/`: previous TIL notes; preserve them as read-only history unless the user requests a specific change.
-- `templates/`: lightweight TIL and practice templates.
+- `templates/`: a lightweight TIL template and a minimal Notebook template.
 
 The normal flow is:
 
@@ -44,7 +45,8 @@ No daily streak, promotion status, separate review log, progress table, or canon
 ## Notes and practice
 
 - Keep TIL files short. Delete unused template sections.
-- Short code may stay in a TIL; create `practice/` only when the work deserves separate files.
+- Short code may stay in a TIL; use `.ipynb` by default when the work deserves a separate practice file.
+- Use `.py` instead when repeatable execution, modularization, training jobs, or accurate systems benchmarking matters.
 - Record only observed results from code that actually ran.
 - Keep datasets, model weights, credentials, and large generated files out of Git unless explicitly authorized and appropriate.
 - Treat PDFs as sources, not public notes. Include toggle children, figures, code, tables, and formulas when exporting Notion pages.

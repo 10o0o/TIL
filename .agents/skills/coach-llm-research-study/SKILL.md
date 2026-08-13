@@ -42,7 +42,7 @@ When the user asks to save the result:
 
 - Keep private or copyrighted sources under `materials/private/`.
 - Create or update one short file under `til/<area>/`.
-- Put substantial executed code or experiments under `practice/`.
+- Put substantial executed code or experiments under `practice/`, using `.ipynb` by default and `.py` for repeatable jobs or systems benchmarks.
 - Preserve existing `archive/` files as previous TIL history.
 - Use `ROADMAP.md` only when broad direction is requested.
 
