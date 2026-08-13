@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate repository TIL Markdown files without third-party dependencies."""
+"""Validate lightweight repository TIL Markdown files."""
 
 from __future__ import annotations
 
@@ -12,12 +12,8 @@ from urllib.parse import unquote
 
 REQUIRED_FRONTMATTER_FIELDS = (
     "title",
-    "description",
     "date",
-    "updated",
-    "category",
     "tags",
-    "publish",
 )
 
 PROHIBITED_MACRO_RE = re.compile(
@@ -27,40 +23,10 @@ INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
 BOLD_BEFORE_KOREAN_RE = re.compile(r"\*\*(?!\s)(?:(?!\*\*).)+?\*\*(?=[가-힣])")
 PLACEHOLDER_LINES = {
     'title: "제목"',
-    'description: "이 글에서 다루는 내용을 한두 문장으로 설명합니다."',
-    'title: "YYYY-MM-DD 학습 기록"',
-    'description: "오늘 실제로 바뀐 이해와 그 증거를 짧게 기록합니다."',
-    'title: "개념 제목"',
-    'description: "이 개념이 해결하는 문제와 핵심 원리를 한두 문장으로 설명합니다."',
     "date: YYYY-MM-DD",
-    "updated: YYYY-MM-DD",
     "- topic",
-    "- prerequisite",
-    "# YYYY-MM-DD 학습 기록",
-    "# 개념 제목",
-    "- 자료 없이 기억한 핵심:",
-    "- 이전에는:",
-    "- 이제는:",
-    "- 직접 해결하거나 설명한 것:",
-    "- 관련 concept 또는 lab:",
-    "- 남은 질문:",
-    "- 다음 복습일(1·3·7·14일 중 선택):",
-    "- progress 기록: `curriculum/progress.md`의 해당 항목",
-    "이 개념이 없으면 무엇을 해결하기 어려운지 설명합니다.",
-    "비유를 사용할 수 있지만 실제 Tensor와 연산으로 이어서 설명합니다.",
-    "2~3차원 벡터, 작은 행렬, 토큰 2~3개 등으로 중간 계산을 생략하지 않습니다.",
-    "각 기호와 항이 무엇을 뜻하는지 설명합니다.",
-    "이 개념이 모델 학습, Transformer, 평가 또는 시스템에서 어디에 등장하는지 설명합니다.",
-    "학습자가 teach-back에서 통과한 설명을 3~7문장으로 기록합니다.",
-    "학습을 시작하게 된 질문이나 해결하려던 문제를 작성합니다.",
-    "이 글의 결론을 먼저 작성합니다.",
-    "개념의 정의와 작동 원리를 설명합니다.",
-    "# 직접 실행한 최소 예제",
-    "처음에는 무엇을 잘못 이해했는지 작성합니다.",
-    "이 개념이 프로젝트, 머신러닝 또는 LLM 개발에서 어디에 사용되는지 작성합니다.",
-    "이 글에서 반드시 기억해야 할 내용을 한 문장으로 정리합니다.",
-    "- [관련 글 제목](../relative/path.md)",
-    "- 자료명",
+    "# 제목",
+    "- 자료:",
 }
 
 

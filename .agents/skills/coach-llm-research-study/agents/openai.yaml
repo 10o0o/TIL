@@ -1,0 +1,4 @@
+interface:
+  display_name: "LLM Research 학습 코치"
+  short_description: "공부한 내용을 확인하고 다음 학습을 가볍게 연결합니다"
+  default_prompt: "$coach-llm-research-study를 사용해 이 자료와 내 TIL을 비교하고, 고칠 부분과 해볼 것 하나를 알려줘."

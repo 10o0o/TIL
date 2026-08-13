@@ -1,0 +1,7 @@
+# Local course material in this public repository
+materials/private/
+
+# Generated previews and caches
+tmp/
+**/__pycache__/
+*.pyc
