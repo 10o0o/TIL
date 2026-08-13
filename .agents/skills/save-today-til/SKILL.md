@@ -7,6 +7,15 @@ description: Parse a freely written Markdown study draft, especially this reposi
 
 Turn one rough study memo into this repository's dated TIL without replacing the learner's thinking with a textbook summary.
 
+## Respect the review boundary
+
+This skill formats and files a draft; it does not establish conceptual correctness.
+
+- In the normal daily workflow, use `$coach-llm-research-study` to review the draft against its studied source before invoking this skill.
+- Do not perform a source audit merely because no prior review is visible; a standalone save request remains valid, and a TIL may intentionally preserve uncertainty.
+- If the current conversation contains a pre-save verdict with unresolved `반드시 수정` or `추가 확인` findings, do not finalize those statements as established facts. Continue only after the learner resolves them, asks to express them explicitly as uncertainty, or knowingly asks to preserve the unverified draft.
+- Never treat a `저장 가능` verdict as evidence for `knowledge/`; it only means the draft is suitable as a chronological TIL.
+
 ## Resolve the input
 
 1. Work from the repository root.
@@ -49,7 +58,7 @@ Follow the headings and order in `til/template.md`.
 
 Preserve the learner's first-person voice, uncertainty, examples, equations, code, observed results, and reasoning. Fix mechanical spelling, spacing, paragraph breaks, obvious repetition, and Markdown. Do not silently correct concepts, answer questions, add facts, fabricate links or results, or compress the note into a generic concept summary.
 
-Keep factual evaluation in `$coach-llm-research-study`, reusable concept synthesis in `$update-learning-knowledge`, and optional activities in `$suggest-learning-practice` unless the user separately requests those tasks.
+Keep pre-save factual evaluation in `$coach-llm-research-study`, reusable concept synthesis in `$update-learning-knowledge`, and optional activities in `$suggest-learning-practice` unless the user separately requests those tasks.
 
 ## Write safely
 

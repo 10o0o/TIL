@@ -19,8 +19,8 @@ The normal flow is:
 
 ```text
 register source material -> audit and learn at the learner's level
--> write freely in today.md -> finalize a dated TIL
--> audit the learner's account and correct misconceptions
+-> write freely in today.md -> review the draft against its sources
+-> resolve or mark important uncertainty -> finalize a dated TIL
 -> decide whether one practice would add value -> run it only when useful
 -> update only understanding supported by learner-authored evidence
 -> optionally deepen a knowledge concept and update the same note only after new evidence
@@ -54,7 +54,11 @@ register source material -> audit and learn at the learner's level
 - Compress ordinary programming basics unless they affect shapes, gradients, numerical behavior, or model meaning.
 - For difficult topics, connect intuition, a small example, formulas and shapes, code, and actual ML/LLM use.
 - Do not treat tutor-generated explanations as proof of learner knowledge. Update `knowledge/` only when explicitly requested and supported by the learner's own explanation, calculation, answer, or interpreted result.
-- After a finalized TIL is reviewed, distinguish what the learner demonstrated from what the tutor merely corrected. Use the former as evidence for practice and knowledge decisions.
+- Before finalizing a TIL, review the rough draft against the exact material studied, the current learning conversation, and only relevant existing knowledge. Distinguish factual errors, learner uncertainty, missing concepts essential to the stated understanding, optional enrichment, and tutor-supplied explanations.
+- Do not require a TIL to cover the whole lecture. Treat a concept as a blocking omission only when leaving it out makes the learner's written conclusion misleading or prevents the lesson's core idea from making sense.
+- Give a pre-save verdict of `저장 가능`, `수정 후 저장`, or `추가 확인 후 저장`. Resolve one important misconception at a time with `$teach-course-material`; update the draft only after the learner demonstrates or explicitly confirms the corrected understanding. An unresolved point may instead remain clearly labeled as uncertainty.
+- Treat `$save-today-til` as a formatter and filer, not a factual reviewer. In the normal daily flow, run the pre-save review first. If the current conversation still has unresolved blocking findings, do not finalize them as factual claims unless the user explicitly chooses to preserve them as uncertainty.
+- After review, distinguish what the learner demonstrated from what the tutor merely corrected. Use only the former as evidence for practice and knowledge decisions.
 - Keep hands-on recommendations separate from lesson evaluation. When explicitly requested, make the practice decision only after meaningful learner evidence exists. Suggest at most one optional activity only if it would add value; recommending no extra practice is valid.
 - Use Kaggle only when data handling, validation, metrics, or error analysis is the point; use local code or benchmarks for mechanics and systems topics. Verify any current recommendation.
 - When a user requests the full daily flow, coordinate the separate skills in the order above; do not merge their responsibilities into a new orchestration skill.
