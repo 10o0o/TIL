@@ -14,11 +14,11 @@ from urllib.parse import unquote
 CANONICAL_HEADINGS = (
     "한 줄 설명",
     "현재 이해",
-    "예제와 연결",
-    "아직 헷갈리는 것",
+    "예제 또는 적용",
+    "주의점과 경계",
     "관련 기록",
 )
-REQUIRED_HEADINGS = CANONICAL_HEADINGS[:3]
+REQUIRED_HEADINGS = CANONICAL_HEADINGS[:2]
 DATE_IN_NAME_RE = re.compile(r"(?:^|[-_])\d{4}-\d{2}-\d{2}(?:[-_]|$)")
 INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
 PROHIBITED_MACRO_RE = re.compile(

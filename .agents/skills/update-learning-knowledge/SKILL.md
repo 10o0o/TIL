@@ -52,15 +52,17 @@ Do not create one knowledge file per TIL, a progress record, an evidence log, a 
 
 ## Write only the demonstrated range
 
-Use the template headings in order:
+Use the template headings in order. Require only `한 줄 설명` and `현재 이해`; omit every optional section that has no durable content:
 
 - `한 줄 설명`: the shortest accurate account the learner can support;
 - `현재 이해`: why the concept is needed and how it works, limited to demonstrated understanding;
-- `예제와 연결`: a learner-worked example, shape, interpreted result, or a useful connection the learner actually made;
-- `아직 헷갈리는 것`: only explicit uncertainty or a supported boundary; omit when empty;
+- `예제 또는 적용`: an optional minimal example, shape, interpreted result, or application that helps reconstruct the concept without duplicating a practice artifact;
+- `주의점과 경계`: optional stable assumptions, failure conditions, or limits that prevent misuse; do not use it for transient confusion, next-study tasks, or a list of experiments not yet attempted;
 - `관련 기록`: only resolvable links worth revisiting; omit when empty.
 
-Preserve the learner's way of explaining where it remains accurate, but edit for clarity and factual consistency. If part of their account is wrong, include only the verified portion and leave the unresolved part explicit or defer the update. Do not paste whole TIL passages, lecture text, evaluator reports, or long tutor explanations.
+Use learner-authored evidence to decide what may enter the note, not as content that must be displayed in an evidence section. Keep detailed code, output, and experiment history in `practice/`; retain only the smallest example or observed result needed to make the reusable concept clear.
+
+Preserve the learner's way of explaining where it remains accurate, but edit for clarity and factual consistency. If part of their account is wrong, include only the verified portion. Defer the update when unresolved uncertainty affects the core explanation; keep ordinary open questions in the chronological TIL or related practice artifact instead of turning the knowledge note into a progress log. Do not paste whole TIL passages, lecture text, evaluator reports, or long tutor explanations.
 
 Revise outdated knowledge in place so the file represents the current best understanding. Keep the chronological record in TIL unchanged. Do not claim calculations, code output, experiments, or transfer that did not occur.
 
