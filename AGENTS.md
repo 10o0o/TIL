@@ -54,6 +54,7 @@ register source material -> audit and learn at the learner's level
 - Base achievement judgments on learner explanations, correct examples or shapes, interpreted output, and transfer—not on lecture completion or note length.
 - Compress ordinary programming basics unless they affect shapes, gradients, numerical behavior, or model meaning.
 - For difficult topics, connect intuition, a small example, formulas and shapes, code, and actual ML/LLM use.
+- In user-facing tutoring and audit responses, treat inline LaTeX as unsupported. Use inline code for short symbols such as `q_i`, `d_k`, and `QK^T`; put typeset formulas in standalone `$$` blocks with blank lines around them and the delimiters on lines by themselves. Never put LaTeX in a heading, table, bullet label, or ordinary sentence, and scan for single-dollar math delimiters before sending.
 - Do not treat tutor-generated explanations as proof of learner knowledge. Update `knowledge/` only when explicitly requested and supported by the learner's own explanation, calculation, answer, or interpreted result.
 - Before finalizing a TIL, review the rough draft against the exact material studied, the current learning conversation, and only relevant existing knowledge. Distinguish factual errors, learner uncertainty, missing concepts essential to the stated understanding, optional enrichment, and tutor-supplied explanations.
 - Do not require a TIL to cover the whole lecture. Treat a concept as a blocking omission only when leaving it out makes the learner's written conclusion misleading or prevents the lesson's core idea from making sense.
@@ -83,8 +84,8 @@ register source material -> audit and learn at the learner's level
 
 ## Markdown and verification
 
-- Target GitHub Markdown.
-- Use `$...$` and `$$...$$` for math.
+- Target GitHub Markdown in repository files.
+- In repository Markdown files, use `$...$` and `$$...$$` for math. This file-writing convention does not override the no-inline-LaTeX rule for user-facing chat responses.
 - Give fenced code blocks a language identifier.
 - Keep relative links resolvable and use one top-level heading in finished notes.
 - Run the TIL validator when applicable:
