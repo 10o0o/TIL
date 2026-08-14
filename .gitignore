@@ -8,3 +8,9 @@ materials/private/
 tmp/
 **/__pycache__/
 *.pyc
+
+# Python virtual environment
+.venv/
+
+# Jupyter temporary files
+**/.ipynb_checkpoints/
