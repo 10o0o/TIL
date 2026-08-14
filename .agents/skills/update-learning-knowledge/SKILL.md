@@ -1,6 +1,6 @@
 ---
 name: update-learning-knowledge
-description: Create or update this repository's durable knowledge notes from understanding the learner has demonstrated in their own TIL, answers, calculations, or interpreted experiment results. Use only when the user explicitly invokes $update-learning-knowledge or asks to reflect, promote, or save verified learning into knowledge/. Create or update zero to three concept notes, revise existing notes in place, and return no knowledge change when evidence is insufficient or nothing durable changed. Do not use for teaching, source auditing, TIL formatting, or copying tutor prose into the knowledge base.
+description: Create or update this repository's durable knowledge notes from understanding the learner has demonstrated in their own TIL, answers, calculations, or interpreted experiment results, then commit only the validated knowledge changes. Use only when the user explicitly invokes $update-learning-knowledge or asks to reflect, promote, or save verified learning into knowledge/. Create or update zero to three concept notes, revise existing notes in place, and return no knowledge change when evidence is insufficient or nothing durable changed. Do not use for teaching, source auditing, TIL formatting, or copying tutor prose into the knowledge base.
 ---
 
 # Update Learning Knowledge
@@ -68,7 +68,7 @@ Revise outdated knowledge in place so the file represents the current best under
 
 - Use `apply_patch` and preserve unrelated content and links.
 - Never edit `archive/`, the source PDF, the finalized TIL, or a practice result as part of this skill.
-- Do not create a practice task, commit, or push unless the user separately requests it.
+- Do not create a practice task or push as part of this skill.
 - Validate every changed knowledge note from the repository root:
 
 ```bash
@@ -76,4 +76,16 @@ python3 .agents/skills/update-learning-knowledge/scripts/validate_knowledge.py p
 git diff --check -- path/to/knowledge-note.md
 ```
 
-Read the final note once more. Report which notes were created, updated, or deliberately skipped and identify the learner-authored evidence used. If there was no justified change, say so plainly without creating a placeholder.
+## Commit the knowledge update
+
+After every nonzero knowledge change, commit only the knowledge notes created or updated by the current run:
+
+1. Read every final note once more and ensure that all validators and `git diff --check` pass.
+2. Run `git status --short` and preserve all unrelated worktree and staged changes.
+3. Stage only the exact changed `knowledge/` paths from the current run.
+4. Inspect `git diff --cached --name-status -- <knowledge-paths>` and run `git diff --cached --check -- <knowledge-paths>`.
+5. Commit only those paths with the message `knowledge: YYYY-MM-DD 학습 내용 반영`, using the current date in `Asia/Seoul`. Use a path-limited commit so unrelated staged changes cannot enter the commit.
+6. If there is no justified knowledge change or the selected notes have no change to commit, do not create an empty commit.
+7. Do not push.
+
+Report which notes were created, updated, or deliberately skipped, the learner-authored evidence used, the commit hash and committed paths. If there was no justified change, say so plainly without creating a placeholder or commit.

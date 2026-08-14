@@ -1,4 +1,4 @@
 interface:
   display_name: "학습 지식 갱신"
-  short_description: "검증된 학습 이해만 현재 지식 베이스 문서에 반영합니다"
-  default_prompt: "$update-learning-knowledge를 사용해 오늘의 TIL과 학습 대화에서 내가 이해했다고 확인된 개념만 knowledge에 반영해줘."
+  short_description: "검증된 학습 이해만 지식 베이스에 반영하고 커밋합니다"
+  default_prompt: "$update-learning-knowledge를 사용해 오늘의 TIL과 학습 대화에서 내가 이해했다고 확인된 개념만 knowledge에 반영하고 변경된 지식 문서만 커밋해줘."
