@@ -58,7 +58,10 @@ problem -> why it is needed -> intuition -> small numerical example
 - Start from the problem the concept solves, not from terminology alone.
 - Use two- or three-dimensional vectors, small matrices, a few tokens, or one or two neurons before scaling up.
 - Define every relevant symbol and state what each value means.
-- Render mathematics with balanced `$...$` or `$$...$$` delimiters and verify the final response for unmatched delimiters before sending. Use explicit braces for styled symbols such as `\mathbf{v}`. When adjoining Korean particles or prose could make an inline formula render ambiguously, rewrite the sentence so the formula has a clear boundary or place the formula in a separate display block.
+- Treat inline LaTeX as unsupported in user-facing lesson responses, even when the syntax is valid. Never place math between single-dollar delimiters in prose, bullets, tables, headings, or labels.
+- Write short symbols and compact expressions as inline code, for example `q_i`, `d_k`, and `QK^T`.
+- Put every expression that needs mathematical typesetting in a standalone display block. Leave a blank line before and after it, put each `$$` delimiter on its own line, and use explicit braces for styled symbols such as `\mathbf{v}`.
+- Before sending, perform a math-rendering preflight: replace every single-dollar math delimiter in the draft, then verify that all display delimiters and LaTeX braces are balanced. Treat any remaining inline LaTeX as a blocking defect rather than a stylistic preference.
 - For Tensor operations, show input and output shapes, name each axis, and explain why the result must have that shape.
 - Map important formulas to NumPy or PyTorch line by line when code improves understanding.
 - Run safe examples before claiming output. Distinguish hand calculation, conceptual algorithm, and actual library implementation.
@@ -70,7 +73,7 @@ problem -> why it is needed -> intuition -> small numerical example
 Connect ideas across the curriculum when useful, for example:
 
 - dot product -> cosine similarity -> attention score;
-- matrix multiplication -> $QK^T$ and token-to-token scores;
+- matrix multiplication -> `QK^T` and token-to-token scores;
 - SVD -> PCA -> low-rank approximation -> LoRA;
 - derivative -> gradient -> gradient descent -> backpropagation;
 - probability distribution -> softmax -> cross-entropy -> language modeling.
