@@ -6,5 +6,8 @@
     "/practice/**/*": "${documentWorkspaceFolder}/assets/${documentBaseName}/${fileName}"
   },
   "markdown.editor.filePaste.copyIntoWorkspace": "mediaFiles",
-  "markdown.copyFiles.overwriteBehavior": "nameIncrementally"
+  "markdown.copyFiles.overwriteBehavior": "nameIncrementally",
+  "workbench.editorAssociations": {
+    "*.ipynb": "jupyter-notebook"
+  }
 }
