@@ -67,7 +67,9 @@ When `워크북 생성` is the outcome:
    - one learning question, prerequisites, and observable completion criteria;
    - an execution-before-prediction prompt;
    - ordered instructions, starter code or TODO cells, and a progressive hint section;
-   - prompts to compare prediction with observation, explain the result, identify one limitation, and state what belongs in `knowledge/` if understanding is confirmed;
+   - prompts to compare prediction with observation, explain what the result demonstrates, and identify one limitation;
+   - an optional prompt for one specific unresolved point when it would help later teaching; omit it when none remains;
+   - concept-specific interpretation prompts instead of redundant catch-all wording such as `내 말로 다시 설명`; do not ask the learner to nominate `knowledge/` updates because `$update-learning-knowledge` owns that decision;
    - for Advanced only, one explicit hypothesis and one controlled extension such as an ablation or error analysis.
 4. Keep the target concept larger than setup and data wrangling. A Notebook may reference a supporting `.py` file only when accurate benchmarking or repeatable jobs require one; the workbook remains the primary artifact.
 5. Do not include a complete solution, invented output, hidden answer, fabricated metric, or claimed result. Leave all code cells unexecuted with `execution_count: null` and empty `outputs` unless the user separately asks to run the experiment.
