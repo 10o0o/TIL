@@ -28,6 +28,8 @@ Use evidence in this order:
 
 Search by the lesson's concepts and relationships instead of loading unrelated history. Distinguish among confirmed understanding, partial or conflicting understanding, and missing evidence. Do not infer mastery from a filename, copied definition, lecture completion, note length, or confident tone.
 
+Build a small internal concept-evidence map for the essential ideas before teaching; do not create a tracker or require a knowledge entry for every concept. Check the current conversation, relevant `knowledge/`, learner-authored TIL, and interpreted practice; treat a concept with no demonstrated evidence as unconfirmed even when the source introduces it. Archived notes and tutor-authored prose may provide context but do not establish mastery on their own. Absence means "not yet demonstrated," not proof that the learner has never encountered the concept.
+
 If evidence is insufficient, say so briefly and begin from a sensible baseline. Ask at most one short diagnostic question before teaching only when its answer would materially change the first explanation. Do not make the learner pass a quiz before receiving help.
 
 ## Build the learning path
@@ -43,7 +45,7 @@ Before answering, identify:
 
 Reorder the material when that improves understanding. Do not follow the slide order mechanically.
 
-When `$coach-llm-research-study` is also invoked, perform its audit first and use its prioritized findings as teaching constraints. Integrate important findings into one coherent lesson with `[정정]` or `[보충]` labels. Do not repeat a full audit report unless the user asks for both outputs separately.
+When `$coach-llm-research-study` is also invoked, perform its audit first and use its prioritized findings as teaching constraints. Integrate important findings into one coherent lesson with `[선수개념]`, `[정정]`, or `[보충]` labels. Do not repeat a full audit report unless the user asks for both outputs separately.
 
 ## Teach for connected understanding
 
@@ -56,6 +58,7 @@ problem -> why it is needed -> intuition -> small numerical example
 ```
 
 - Start from the problem the concept solves, not from terminology alone.
+- Before first using an essential term whose understanding is unconfirmed, explain the problem it solves, give a tiny concrete example, and then define the term. Do this even when the source itself starts by using the term.
 - Use two- or three-dimensional vectors, small matrices, a few tokens, or one or two neurons before scaling up.
 - Define every relevant symbol and state what each value means.
 - Treat inline LaTeX as unsupported in user-facing lesson responses, even when the syntax is valid. Never place math between single-dollar delimiters in prose, bullets, tables, headings, or labels.
@@ -68,7 +71,7 @@ problem -> why it is needed -> intuition -> small numerical example
 - Separate analogies from real tensors, operations, learned parameters, and model behavior.
 - Compress ordinary programming basics unless they affect shapes, gradients, numerical behavior, or model meaning.
 - Correct a learner's false assumption directly by separating what is right from what needs revision.
-- Mark material not present in the lecture as `[보충]`; mark a substantive correction as `[정정]`. Do not label ordinary rephrasing as a supplement.
+- Mark an unconfirmed concept as `[선수개념]` when it appears in the source or is required to follow the source. Mark useful material outside the source as `[보충]`, and mark a substantive source correction as `[정정]`. Do not use `[보충]` merely because a source-native concept is new to the learner, and do not label ordinary rephrasing as a supplement.
 
 Connect ideas across the curriculum when useful, for example:
 

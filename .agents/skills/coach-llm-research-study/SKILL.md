@@ -13,6 +13,7 @@ Act as the learner's AI/ML/LLM evaluator. Identify what the source or learner un
 2. Read the lesson objective, table of contents, adjacent lesson titles, `ROADMAP.md`, and relevant `knowledge/` notes when available.
 3. Start from the learner's rough explanation or TIL when one exists; audit the source alone when it does not.
 4. Infer what the lesson is trying to teach and what it intentionally postpones. If adjacent course context is unavailable, label uncertainty instead of claiming that a topic was definitely omitted.
+5. For each essential concept the lesson uses, check for demonstrated understanding in the current conversation, relevant `knowledge/`, learner-authored TIL, and interpreted practice. Treat absent evidence as unconfirmed understanding even when the source itself introduces the concept. Use archived notes and tutor-authored prose only as context unless learner-authored evidence independently supports them.
 
 ## Audit the material
 
@@ -23,6 +24,8 @@ Inspect the lesson through these lenses:
 - **필수 선수개념**: knowledge needed to follow the current explanation, not merely interesting background;
 - **오해하기 쉬운 단순화**: a teaching simplification that is acceptable only with a boundary or caveat;
 - **목표 관점의 보강**: implementation, numerical behavior, evaluation, or ML/LLM connection that materially helps an aspiring LLM Research Engineer.
+
+Distinguish a source omission from a learner-relative prerequisite. A concept may be present and correct in the source but still need to be taught before first use because the learner has not demonstrated it. Classify that case as **학습자 기준 선수개념**, not as an error or omission in the source.
 
 For each finding, identify the exact page, slide, section, formula, or code fragment; state the category; give the correction or missing explanation; and explain why it matters now. When formulas or tensors are involved, define every relevant symbol and axis, show shapes, and check dimensional consistency.
 
@@ -93,9 +96,10 @@ Explain each correction or missing prerequisite far enough that the learner can 
 When the user wants to learn the whole source, use `$teach-course-material` for the teaching flow. When both skills are invoked:
 
 1. audit the source and learner evidence first;
-2. prioritize only the findings that change the current lesson;
-3. feed those findings into the adaptive explanation;
-4. present one coherent lesson with inline `[정정]` and `[보충]` markers instead of duplicating a full audit report, unless the user asks for separate reports.
+2. identify source-native concepts whose understanding is unconfirmed and mark them for teaching before first use;
+3. prioritize only the findings that change the current lesson;
+4. feed those findings into the adaptive explanation;
+5. present one coherent lesson with `[선수개념]`, `[정정]`, and `[보충]` markers instead of duplicating a full audit report, unless the user asks for separate reports.
 
 ## Report an audit
 
