@@ -1,6 +1,6 @@
 ---
 name: update-learning-knowledge
-description: Create or update this repository's durable knowledge notes from understanding the learner has demonstrated in their own TIL, answers, calculations, or interpreted experiment results, then commit only the validated knowledge changes. Use only when the user explicitly invokes $update-learning-knowledge or asks to reflect, promote, or save verified learning into knowledge/. Create or update zero to three concept notes, revise existing notes in place, and return no knowledge change when evidence is insufficient or nothing durable changed. Do not use for teaching, source auditing, TIL formatting, or copying tutor prose into the knowledge base.
+description: Create or update this repository's concise, concept-oriented knowledge notes from understanding the learner has demonstrated in their own TIL, answers, calculations, or interpreted experiment results, then commit only the validated knowledge changes. Use only when the user explicitly invokes $update-learning-knowledge or asks to reflect, promote, or save verified learning into knowledge/. Create or update zero to three concept notes, revise existing notes in place, and return no knowledge change when evidence is insufficient or nothing durable changed. Do not use for teaching, source auditing, TIL formatting, or copying tutor prose into the knowledge base.
 ---
 
 # Update Learning Knowledge
@@ -32,6 +32,8 @@ If one short diagnostic answer would materially determine whether a concept is r
 
 Select zero to three concepts with the highest reuse value. A concept belongs when it is durable, relevant to the roadmap or future lessons, and supported by the learner's own evidence.
 
+Choose file boundaries by concept, not by study date or source. Split concepts when each can be searched, explained, reused, and extended independently, even if they were learned together. Keep one concept's definition, mechanism, formula, example, and cautions together; do not fragment trivial subparts into separate files.
+
 Return zero changes when:
 
 - no new or corrected understanding was demonstrated;
@@ -52,17 +54,19 @@ Do not create one knowledge file per TIL, a progress record, an evidence log, a 
 
 ## Write only the demonstrated range
 
-Use the template headings in order. Require only `한 줄 설명` and `현재 이해`; omit every optional section that has no durable content:
+Use the template headings in order. Require only `핵심 요약` and `개념 정리`; omit every optional section that has no durable content:
 
-- `한 줄 설명`: the shortest accurate account the learner can support;
-- `현재 이해`: why the concept is needed and how it works, limited to demonstrated understanding;
+- `핵심 요약`: the shortest accurate definition or purpose the learner can support;
+- `개념 정리`: a concise reference explanation of the definition, mechanism, formula, Tensor Shape, or distinctions that belong to this concept;
 - `예제 또는 적용`: an optional minimal example, shape, interpreted result, or application that helps reconstruct the concept without duplicating a practice artifact;
-- `주의점과 경계`: optional stable assumptions, failure conditions, or limits that prevent misuse; do not use it for transient confusion, next-study tasks, or a list of experiments not yet attempted;
-- `관련 기록`: only resolvable links worth revisiting; omit when empty.
+- `주의점`: optional stable assumptions, failure conditions, or limits that prevent misuse; do not use it for transient confusion, next-study tasks, or a list of experiments not yet attempted;
+- `관련 기록`: only resolvable links to directly related knowledge notes, TILs, practice artifacts, or sources worth revisiting; omit when empty.
 
 Use learner-authored evidence to decide what may enter the note, not as content that must be displayed in an evidence section. Keep detailed code, output, and experiment history in `practice/`; retain only the smallest example or observed result needed to make the reusable concept clear.
 
-Preserve the learner's way of explaining where it remains accurate, but edit for clarity and factual consistency. If part of their account is wrong, include only the verified portion. Defer the update when unresolved uncertainty affects the core explanation; keep ordinary open questions in the chronological TIL or related practice artifact instead of turning the knowledge note into a progress log. Do not paste whole TIL passages, lecture text, evaluator reports, or long tutor explanations.
+Present admitted knowledge as a compact reference rather than a diary entry. Use neutral, direct language and organize `개념 정리` with useful `###` subheadings such as `정의`, `원리`, `수식과 Shape`, or `다른 개념과의 차이`. Prefer compact paragraphs, bullets, tables, formulas, and Shape traces according to the concept. Avoid chronological phrases such as “이번 실습에서는”, first-person learning reflections, and prose that exists only to document how the concept was learned.
+
+Preserve the learner's demonstrated scope and conceptual meaning, not their raw wording or narrative order. If part of their account is wrong, include only the verified portion. Defer the update when unresolved uncertainty affects the core explanation; keep ordinary open questions in the chronological TIL or related practice artifact instead of turning the knowledge note into a progress log. Do not paste whole TIL passages, lecture text, evaluator reports, or long tutor explanations.
 
 Revise outdated knowledge in place so the file represents the current best understanding. Keep the chronological record in TIL unchanged. Do not claim calculations, code output, experiments, or transfer that did not occur.
 

@@ -12,10 +12,10 @@ from urllib.parse import unquote
 
 
 CANONICAL_HEADINGS = (
-    "한 줄 설명",
-    "현재 이해",
+    "핵심 요약",
+    "개념 정리",
     "예제 또는 적용",
-    "주의점과 경계",
+    "주의점",
     "관련 기록",
 )
 REQUIRED_HEADINGS = CANONICAL_HEADINGS[:2]
