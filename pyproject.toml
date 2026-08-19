@@ -1,7 +1,7 @@
 [project]
-name = "til"
+name = "llm-research-learning-lab"
 version = "0.1.0"
-description = "Personal TIL notes and learning practice notebooks"
+description = "A personal learning lab for becoming an LLM Research Engineer"
 readme = "README.md"
 requires-python = ">=3.14,<3.15"
 dependencies = [

@@ -1,6 +1,6 @@
-# TIL
+# LLM Research Engineer Learning Lab
 
-LLM Research Engineer를 목표로 공부한 과정, 현재 이해하고 있는 지식, 직접 해본 실습을 가볍게 모아두는 저장소입니다.
+LLM Research Engineer를 목표로 학습 기록, 개념 지식, 실행 실습을 연결해 쌓아가는 개인 학습 저장소입니다.
 
 완벽한 학습 관리 시스템보다 **나중에 다시 찾을 수 있는 짧은 기록**을 우선합니다.
 
