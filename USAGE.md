@@ -1,5 +1,23 @@
 # 사용법
 
+## Python 실습 환경 준비
+
+이 저장소의 Python 패키지와 `.venv`는 uv로 관리합니다. 저장소를 처음 받았거나 의존성이 바뀌었을 때 다음 명령으로 잠금 파일과 동일한 환경을 준비합니다.
+
+```bash
+cd /home/jake/TIL
+uv sync
+```
+
+새 패키지는 `pip install` 대신 `uv add <패키지명>`으로 추가하고, 명령은 `uv run`으로 실행합니다.
+
+```bash
+uv add <패키지명>
+uv run python <파일명>.py
+```
+
+VS Code에서 Notebook을 실행할 때는 `/home/jake/TIL/.venv/bin/python`을 커널로 선택합니다. 직접 의존성은 `pyproject.toml`, 정확한 설치 버전은 `uv.lock`에 기록되므로 두 파일을 함께 유지합니다.
+
 ## 세 공간만 구분하기
 
 | 위치 | 남기는 것 | 성격 |

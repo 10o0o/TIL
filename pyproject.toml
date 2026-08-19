@@ -1,0 +1,14 @@
+[project]
+name = "til"
+version = "0.1.0"
+description = "Personal TIL notes and learning practice notebooks"
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+    "ipykernel",
+    "numpy",
+    "torch",
+]
+
+[tool.uv]
+package = false
