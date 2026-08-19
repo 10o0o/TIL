@@ -5,7 +5,7 @@
 이 저장소의 Python 패키지와 `.venv`는 uv로 관리합니다. 저장소를 처음 받았거나 의존성이 바뀌었을 때 다음 명령으로 잠금 파일과 동일한 환경을 준비합니다.
 
 ```bash
-cd /home/jake/TIL
+cd /home/jake/llm-research-learning-lab
 uv sync
 ```
 
@@ -16,7 +16,7 @@ uv add <패키지명>
 uv run python <파일명>.py
 ```
 
-VS Code에서 Notebook을 실행할 때는 `/home/jake/TIL/.venv/bin/python`을 커널로 선택합니다. 직접 의존성은 `pyproject.toml`, 정확한 설치 버전은 `uv.lock`에 기록되므로 두 파일을 함께 유지합니다.
+VS Code에서 Notebook을 실행할 때는 `/home/jake/llm-research-learning-lab/.venv/bin/python`을 커널로 선택합니다. 직접 의존성은 `pyproject.toml`, 정확한 설치 버전은 `uv.lock`에 기록되므로 두 파일을 함께 유지합니다.
 
 ## 세 공간만 구분하기
 
