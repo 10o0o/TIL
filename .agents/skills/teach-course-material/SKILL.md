@@ -1,6 +1,6 @@
 ---
 name: teach-course-material
-description: Teach a named AI, machine learning, deep learning, LLM, or mathematics course file or deepen a concept from an existing knowledge note as an adaptive, scaffolded lesson grounded in this repository's learner-authored evidence, current conversation, and any findings from $coach-llm-research-study. Use when the user asks to study, learn, or deeply understand specified lecture material or revisit a knowledge concept, with prerequisites, intuition, examples, formulas, Tensor shapes, code mappings, applications, guided hints, and interactive understanding checks. Do not use for audit-only reports, TIL formatting, automatic knowledge-base writing, or practice recommendations.
+description: Teach a named AI, machine learning, deep learning, LLM, or mathematics course file or deepen a concept from an existing knowledge note as an adaptive, scaffolded lesson grounded in learner-authored evidence and findings from $coach-llm-research-study. Use for prerequisites, intuition, examples, formulas, Tensor shapes, code mappings, guided hints, and interactive understanding checks. For an interactive named-source lesson used with the coach, teach only from a fresh-reviewed temporary lesson contract and append only confirmed learner answers to til/today.md. Do not use for audit-only reports, TIL finalization, knowledge-base writing, or practice recommendations.
 ---
 
 # Teach Course Material
@@ -11,7 +11,7 @@ Act as the learner's personal AI/ML/LLM tutor. Optimize for connected understand
 
 1. Resolve the exact source or `knowledge/` note named by the user. If no target is named and more than one candidate exists, ask which lesson or concept to use.
 2. Read the complete source before teaching. For PDFs, inspect figures, formulas, code, tables, footnotes, and appendices; render pages whenever extraction can lose layout or notation.
-3. Read the course `INDEX.md`, nearby lesson titles, and `ROADMAP.md` only as needed to understand what comes before and after the lesson.
+3. Read the course `INDEX.md`, nearby lesson titles, `ROADMAP.md`, and relevant competency rows in `CURRICULUM.md` only as needed to understand what comes before and after the lesson.
 4. Preserve private course files as read-only sources. Never edit or publish them.
 5. If a source cannot be read completely, identify the missing pages or elements before relying on it.
 
@@ -46,6 +46,22 @@ Before answering, identify:
 Reorder the material when that improves understanding. Do not follow the slide order mechanically.
 
 When `$coach-llm-research-study` is also invoked, perform its audit first and use its prioritized findings as teaching constraints. Integrate important findings into one coherent lesson with `[선수개념]`, `[정정]`, or `[보충]` labels. Do not repeat a full audit report unless the user asks for both outputs separately.
+
+## Start or resume an interactive lesson
+
+A direct definition, factual correction, or short one-off clarification stays read-only. For an interactive named-source lesson used with `$coach-llm-research-study`, read [the lesson handoff contract](../coach-llm-research-study/references/lesson-handoff.md) completely and use `tmp/active-lesson-handoff.md` as the only resumable operational cache.
+
+- Let the coach audit the complete source, prepare the lesson contract, obtain a pass from a fresh semantic reviewer, and run the readiness validator. Do not provide the first teaching chunk until this command succeeds:
+
+  ```bash
+  python3 .agents/skills/coach-llm-research-study/scripts/validate_lesson_handoff.py --ready tmp/active-lesson-handoff.md
+  ```
+
+- Do not self-approve a contract. If the reviewer is unavailable or the contract has not passed within the two total attempts allowed by the handoff, leave it `blocked` and stop before teaching.
+- If the user only says "continue" and no active handoff exists, do not infer a source even when only one candidate seems likely. Ask for the exact source or lesson instead.
+- When the same primary source path and hash return after context loss, continue from `Current Position` and `next_question`; do not restart the lesson. If an input or contract hash is stale, return it to the coach for rebuild and fresh review.
+- Do not overwrite another active, paused, or blocked lesson. Resolve whether the learner wants to resume it or explicitly close and replace it. A completed handoff is replaceable only after every confirmed evidence item is `drafted`; otherwise recover the pending appends first.
+- After each meaningful chunk, update only the current position and next question. These operational updates do not claim that the learner understood the explanation.
 
 ## Teach for connected understanding
 
@@ -117,6 +133,22 @@ Use interactive teaching by default for a whole lesson:
 
 Do not ask a question after every paragraph. If the user asks for the whole lesson in one response, provide a cohesive full explanation and place a small set of checks at the end. On follow-up turns, continue from the current point instead of restarting the lesson or repeating the source overview.
 
+## Capture only confirmed learner evidence
+
+For a handoff-backed interactive lesson, preserve each relevant learner answer verbatim in a new evidence entry and keep the tutor assessment separate. Classify it as `confirmed`, `partial`, `misconception`, or `unconfirmed` according to the handoff contract.
+
+- Use `confirmed` only when the learner's own answer has no core error for the stated concept and check type. A correct explain-back, calculation, shape prediction, code interpretation, transfer, or limit statement can qualify.
+- Do not append simple agreement, source summary, copied tutor wording, tutor prose, partial understanding, or a misconception to the draft. A corrected explain-back is a new evidence ID; do not rewrite the earlier attempt.
+- Append each confirmed evidence item exactly once with the deterministic helper:
+
+  ```bash
+  python3 .agents/skills/teach-course-material/scripts/append_lesson_evidence.py \
+    tmp/active-lesson-handoff.md --evidence E001
+  ```
+
+  The helper writes the learner's answer with an internal idempotency marker to the canonical ignored inbox `til/today.md`, creates the reset inbox when absent, and marks the evidence drafted only after the content is present. Re-run it after an interruption instead of manually duplicating the answer.
+- Never edit a learner answer into correctness before appending it. Keep any qualification in the handoff's tutor assessment and ask for a new learner response when confirmation is needed.
+
 ## Finish a lesson segment
 
 When a segment or full lesson ends, state only what is useful:
@@ -125,6 +157,6 @@ When a segment or full lesson ends, state only what is useful:
 - what their own answers actually demonstrated and any uncertainty still shown;
 - the next conceptual connection in the course, without turning it into an assignment.
 
-This compact evidence handoff may be used later by `$suggest-learning-practice` or `$update-learning-knowledge`. Do not make either decision inside this skill.
+After confirmed learner-authored evidence is saved into a validated dated TIL, the user may pass that exact TIL to `$suggest-learning-practice` or use it with `$update-learning-knowledge`. Never pass the temporary handoff itself as their input or treat its tutor assessment as learner evidence. Do not make either decision inside this skill.
 
-Do not automatically write the tutor's explanation into `knowledge/`; that would misrepresent it as the learner's understanding. Use `$update-learning-knowledge` only when the user separately asks and learner-authored evidence supports the content. Do not create a TIL, practice file, progress tracker, or commit unless explicitly requested.
+Do not automatically write the tutor's explanation into `knowledge/`; that would misrepresent it as the learner's understanding. Use `$update-learning-knowledge` only when the user separately asks and learner-authored evidence supports the content. Apart from the reviewed operational handoff and confirmed-answer append described above, do not create a TIL, practice file, progress tracker, or commit. `$save-today-til` alone finalizes and commits the dated TIL.

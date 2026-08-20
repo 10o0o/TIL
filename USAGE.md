@@ -26,28 +26,31 @@ VS Code에서 Notebook을 실행할 때는 `/home/jake/llm-research-learning-lab
 | `knowledge/` | 지금 내가 그 개념을 어떻게 이해하는지 | 주제별 문서, 계속 갱신 |
 | `practice/` | 직접 실행한 코드, 출력, 그래프와 해석 | Notebook 중심의 증거 |
 
+[`ROADMAP.md`](./ROADMAP.md)는 큰 학습 방향을, [`CURRICULUM.md`](./CURRICULUM.md)는 역량별 목표 깊이·선수 관계·현재 강의자료의 충족도와 보완 기준을 담습니다. 둘 다 개인 진도율이나 점수를 기록하는 문서는 아닙니다.
+
 ## 공부한 날
 
 1. KANT 라이브 수업을 듣습니다.
-2. 사용한 PDF를 `materials/private/<course>/`에 등록합니다.
-3. `$coach-llm-research-study`와 `$teach-course-material`로 자료를 점검하고 현재 이해 수준에 맞춰 학습합니다.
-4. 개념 단위로 설명을 듣고, 질문·계산·자기 설명을 통해 이해를 확인합니다.
-5. 루트 `today.md`에 라이브 수업과 보충 학습에서 얻은 것을 형식 없이 씁니다.
-6. `$coach-llm-research-study`로 `today.md`를 오늘 본 자료와 비교해 저장 전에 검토합니다.
-7. 오개념이나 확인이 필요한 표현이 있으면 `$teach-course-material`로 다시 학습하고, 직접 설명한 뒤 합의된 수정만 초안에 반영합니다.
-8. `저장 가능` 판정을 받으면 `$save-today-til`로 날짜별 TIL을 저장합니다.
+2. 사용한 강의자료를 `materials/private/<course>/`에 등록합니다.
+3. `$coach-llm-research-study`와 `$teach-course-material`로 자료를 감사하고 `CURRICULUM.md`의 관련 역량·공백을 확인합니다.
+4. 수업 계약이 fresh reviewer의 검토를 통과하면 개념 단위로 학습하고, 질문·계산·자기 설명을 통해 이해를 확인합니다.
+5. 형식 없는 메모는 `til/today.md`에 직접 쓰고, 대화형 수업에서 확인된 자신의 답변은 같은 파일에 자동으로 누적합니다.
+6. `$coach-llm-research-study`로 `til/today.md`를 오늘 본 자료와 비교해 저장 전에 검토합니다.
+7. 오개념이나 확인이 필요한 표현이 있으면 `$teach-course-material`로 다시 학습하고, 직접 다시 설명한 답변 중 확인된 것만 초안에 반영합니다.
+8. `저장 가능` 판정을 받으면 `$save-today-til`로 날짜별 TIL을 저장하고 그 날짜별 TIL만 자동 커밋합니다.
 9. 저장된 날짜별 TIL의 정확한 경로를 `$suggest-learning-practice`에 전달하고, 강의 제공 실습을 바탕으로 다듬고 싶다면 그 파일도 정확히 지정합니다. 스킬은 강의자료 링크와 이해 증거를 확인해 필요할 때만 Notebook 워크북 하나를 만듭니다.
 10. 워크북이 만들어졌다면 직접 실행하고 결과를 해석합니다. 재학습 또는 추가 실습 없음 판정이면 이 단계를 건너뜁니다.
 11. `$update-learning-knowledge`로 실제로 이해했다고 확인된 내용만 `knowledge/`에 반영합니다.
 12. 새 지식 문서를 더 깊게 공부하고 싶다면 그 문서를 대상으로 다시 질문하고, 새 이해가 확인된 경우 같은 문서만 갱신합니다.
 
-실습이 필요 없거나 새로 반영할 지식이 없다는 결론도 정상입니다. 별도의 진도표나 복습 문서를 만들지 않습니다.
+실습이 필요 없거나 새로 반영할 지식이 없다는 결론도 정상입니다. 영구 중복 강의록이나 학습자 진도표는 만들지 않으며, `tmp/active-lesson-handoff.md`는 확인된 학습자 답변이 모두 초안에 반영되고 날짜별 TIL 커밋이 성공한 후에만 제거하는 임시 운영 캐시입니다.
 
 ## 강의자료 등록
 
 비공개 강의자료는 Git에 올라가지 않는 다음 위치에 둡니다.
 
 ```text
+materials/private/<course>/NN-NN_주제.md
 materials/private/<course>/NN-NN_주제.pdf
 ```
 
@@ -63,7 +66,7 @@ til/2026/08/2026-08-20.md
 til/2026/09/2026-09-01.md
 ```
 
-처음부터 정해진 목차에 맞추지 않습니다. `today.md`에는 다음 내용이 자연스럽게 섞여도 됩니다.
+처음부터 정해진 목차에 맞추지 않습니다. `til/today.md`에는 다음 내용이 자연스럽게 섞여도 됩니다.
 
 - 오늘 본 자료와 이해한 내용
 - 처음 생각과 달라진 부분
@@ -119,14 +122,16 @@ practice/llm/attention-score.ipynb
 
 ```text
 $coach-llm-research-study와 $teach-course-material을 함께 사용해
-materials/private/kant-basic-math/01-01_벡터의_정의와_기하학적_해석.pdf를 학습하고 싶어.
+materials/private/kant-basic-math/01-01_벡터의_정의와_기하학적_해석.md를 학습하고 싶어.
 
 관련 knowledge와 최근 TIL에서 내 현재 이해를 먼저 확인하고,
 강의의 오류·누락·선수개념을 실제 설명에 반영해줘.
 한 번에 전부 설명하지 말고 개념 단위로 진행하면서 내 설명과 계산을 통해 이해를 확인해줘.
 ```
 
-평가 결과는 필요한 곳에 `[정정]`과 `[보충]`으로 반영됩니다. 별도 평가 보고서까지 필요할 때만 요청합니다.
+수업 전에 ignored 임시 파일인 `tmp/active-lesson-handoff.md`에 자료 hash, 수업 계약, 검토 결과와 다음 질문을 남깁니다. fresh reviewer가 계약을 통과시켜야 수업을 시작하며, 첫 검토와 수정 후 재검토까지 총 2회 안에 통과하지 못하거나 reviewer를 사용할 수 없으면 수업을 중단합니다. 이 파일은 컨텍스트 복구용 운영 캐시이며 영구 강의록이나 학습 증거가 아닙니다.
+
+평가 결과는 필요한 곳에 `[선수개념]`, `[정정]`, `[보충]`으로 반영됩니다. 학습자의 답변 중 정확한 이해가 확인된 것만 `til/today.md`에 자동으로 추가되며, 튜터 설명·단순 동의·부분 이해·오개념은 추가되지 않습니다. 별도 평가 보고서까지 필요할 때만 요청합니다.
 
 기존 지식 문서에서 궁금한 부분을 더 배우는 데도 같은 학습 스킬을 사용합니다. 이때 지식 문서는 정답지가 아니라 현재 이해를 보여주는 출발점입니다.
 
@@ -136,9 +141,9 @@ knowledge/math/vector.md에서 내가 이해한 범위를 먼저 확인하고,
 관련 강의자료와 연결해 부족한 부분을 대화형으로 가르쳐줘.
 ```
 
-### 2. today.md 저장 전 검토
+### 2. til/today.md 저장 전 검토
 
-[`coach-llm-research-study`](./.agents/skills/coach-llm-research-study/SKILL.md)는 `today.md`를 오늘 본 강의자료와 학습 대화에 대조해 다음을 구분합니다.
+[`coach-llm-research-study`](./.agents/skills/coach-llm-research-study/SKILL.md)는 `til/today.md`를 오늘 본 강의자료와 학습 대화에 대조해 다음을 구분합니다.
 
 - 정확하게 설명한 내용
 - 저장 전에 반드시 고쳐야 할 잘못된 개념
@@ -149,7 +154,7 @@ knowledge/math/vector.md에서 내가 이해한 범위를 먼저 확인하고,
 
 ```text
 $coach-llm-research-study를 사용해
-today.md를 오늘 본 강의자료 기준으로 저장 전에 검토해줘.
+til/today.md를 오늘 본 강의자료 기준으로 저장 전에 검토해줘.
 ```
 
 검토 결과는 다음 중 하나입니다.
@@ -163,17 +168,17 @@ today.md를 오늘 본 강의자료 기준으로 저장 전에 검토해줘.
 ```text
 $teach-course-material을 사용해
 저장 전에 확인해야 할 첫 번째 개념부터 다시 가르쳐줘.
-내가 다시 설명해서 이해가 확인되면 합의된 내용만 today.md에 반영해줘.
+내가 다시 설명해서 이해가 확인되면 내 답변만 til/today.md에 반영해줘.
 ```
 
 평가 코치는 오개념을 정답 문장으로 몰래 바꾸지 않습니다. 해결되지 않은 부분은 `남은 질문`이나 불확실성으로 명시할 수 있습니다. 모든 강의 내용을 빠짐없이 추가하는 것도 목표가 아닙니다.
 
 ### 3. 오늘의 TIL 저장
 
-[`save-today-til`](./.agents/skills/save-today-til/SKILL.md)은 검토를 마친 `today.md`를 적당히 분류하고 다듬어 `til/YYYY/MM/YYYY-MM-DD.md`에 저장합니다.
+[`save-today-til`](./.agents/skills/save-today-til/SKILL.md)은 검토를 마친 `til/today.md`를 적당히 분류하고 다듬어 `til/YYYY/MM/YYYY-MM-DD.md`에 저장합니다.
 
 ```text
-$save-today-til을 사용해 today.md를 정리하고 날짜별 TIL로 저장해줘.
+$save-today-til을 사용해 til/today.md를 정리하고 날짜별 TIL로 저장해줘.
 ```
 
 다른 초안이나 지난 날짜도 지정할 수 있습니다.
@@ -182,13 +187,13 @@ $save-today-til을 사용해 today.md를 정리하고 날짜별 TIL로 저장해
 $save-today-til을 사용해 rough.md를 2026-08-13 TIL로 저장해줘.
 ```
 
-사용자의 말투, 질문, 계산, 코드와 실제 결과는 보존하고 맞춤법·문단·중복만 가볍게 정리합니다. 저장 스킬은 사실 검증을 반복하지 않습니다. 같은 날짜의 TIL이 있으면 기존 내용에 합치며, 루트 `today.md`에서 저장한 경우 검증 성공 후 초안만 초기화합니다.
+사용자의 말투, 질문, 계산, 코드와 실제 결과는 보존하고 맞춤법·문단·중복만 가볍게 정리합니다. 저장 스킬은 사실 검증을 반복하지 않습니다. 같은 날짜의 TIL이 있으면 기존 내용에 합치며, 내부 중복 방지 marker는 최종 TIL에서 제거합니다. 검증과 날짜별 TIL 하나의 path-limited 커밋이 성공한 뒤에만 `til/today.md`와 완료된 handoff를 정리하며 push하지 않습니다. 검증이나 커밋이 실패하면 둘 다 그대로 보존합니다.
 
 나중에 새로운 오류를 발견했거나 자료가 바뀌었다면 완성된 TIL을 평가 코치로 다시 검토할 수 있지만, 매일 저장 후 같은 평가를 반복할 필요는 없습니다.
 
 ### 4. 적응형 실습 워크북
 
-[`suggest-learning-practice`](./.agents/skills/suggest-learning-practice/SKILL.md)는 검토와 저장을 마친 날짜별 TIL 하나를 필수 입력으로 받습니다. 정확한 경로를 지정해야 하며, 스킬이 최신 TIL을 자동으로 고르거나 `today.md`를 대신 사용하지 않습니다. TIL의 `관련 기록`에 있는 강의자료를 따라가서 오늘 배운 내용과 이해 증거를 함께 확인합니다.
+[`suggest-learning-practice`](./.agents/skills/suggest-learning-practice/SKILL.md)는 검토와 저장을 마친 날짜별 TIL 하나를 필수 입력으로 받습니다. 정확한 경로를 지정해야 하며, 스킬이 최신 TIL을 자동으로 고르거나 `til/today.md`를 대신 사용하지 않습니다. TIL의 `관련 기록`에 있는 강의자료를 따라가서 오늘 배운 내용과 이해 증거를 함께 확인합니다.
 
 ```text
 $suggest-learning-practice를 사용해
@@ -231,18 +236,18 @@ $coach-llm-research-study와 $teach-course-material을 사용해
 개념별로 진행하고 내 답변에서 확인된 이해와 불확실성을 구분해줘.
 ```
 
-`today.md`를 쓴 뒤에는 먼저 검토합니다.
+`til/today.md`를 쓴 뒤에는 먼저 검토합니다.
 
 ```text
 $coach-llm-research-study를 사용해
-today.md를 오늘 본 강의자료 기준으로 저장 전에 검토해줘.
+til/today.md를 오늘 본 강의자료 기준으로 저장 전에 검토해줘.
 수정이나 추가 확인이 필요하면 저장하지 말고 중요한 것부터 하나씩 해결해줘.
 ```
 
 `저장 가능` 판정을 받은 뒤 날짜별 TIL로 저장합니다.
 
 ```text
-$save-today-til로 today.md를 저장해줘.
+$save-today-til로 til/today.md를 저장해줘.
 ```
 
 저장 스킬이 알려준 정확한 날짜별 경로를 다음 요청에 넣습니다.

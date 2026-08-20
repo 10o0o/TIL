@@ -7,19 +7,22 @@ This is a lightweight personal TIL repository for studying toward an LLM Researc
 ## Layout
 
 - `materials/`: source files. Copyrighted or private files belong in ignored `materials/private/`.
-- `today.md`: ignored local scratchpad for free-form study writing; `$save-today-til` finalizes it.
+- `til/today.md`: ignored local scratchpad for free-form study writing and confirmed learner answers; `$save-today-til` finalizes it. Root `today.md` is an ignored legacy input only when explicitly named.
 - `til/`: diary-like learning records organized by date as `til/YYYY/MM/YYYY-MM-DD.md`; keep its template at `til/template.md`.
 - `knowledge/`: topic-oriented, mutable notes representing the learner's current best understanding; keep its template at `knowledge/template.md`.
 - `practice/`: executed notebooks, Kaggle work, model experiments, and benchmarks; keep its template at `practice/template.ipynb`.
 - `ROADMAP.md`: broad learning direction, not a status tracker.
+- `CURRICULUM.md`: stable competency targets and audited source coverage, not learner progress or mastery tracking.
 - `USAGE.md`: concise instructions for writing TIL notes, storing practice, and using repository skills.
 - `archive/`: previous TIL notes; preserve them as read-only history unless the user requests a specific change.
 
 The normal flow is:
 
 ```text
-register source material -> audit and learn at the learner's level
--> write freely in today.md -> review the draft against its sources
+register source material -> audit it against CURRICULUM.md
+-> prepare and independently review one temporary lesson handoff
+-> teach at the learner's level -> append only confirmed learner answers to til/today.md
+-> review the draft against its sources
 -> resolve or mark important uncertainty -> finalize a dated TIL
 -> pass that exact TIL to the practice coach -> create one adaptive workbook only when useful
 -> run and interpret the workbook when one was created
@@ -35,6 +38,9 @@ register source material -> audit and learn at the learner's level
 - Preserve unrelated working-tree changes.
 - Treat review and explanation requests as read-only unless the user asks for edits.
 - Use `apply_patch` for text edits.
+- Use `tmp/active-lesson-handoff.md` as the only resumable interactive-lesson cache. It is ignored operational state, not a durable review, progress, or learner-evidence document.
+- Do not replace a completed handoff with a new lesson until every confirmed learner-evidence item is drafted. Remove it only after the dated TIL commit succeeds.
+- During a multi-source curriculum audit, `tmp/curriculum-audit/` may hold disposable per-source recovery notes. Delete them after reviewed findings are integrated into `CURRICULUM.md`; they are not learner evidence or progress records.
 - Do not relocate, delete, or rewrite existing `archive/` notes in bulk.
 - Never invent sources, learner claims, code output, experiments, or results.
 - Verify current recommendations such as Kaggle competitions, libraries, models, and tools.
@@ -66,11 +72,13 @@ register source material -> audit and learn at the learner's level
 - Give a pre-save verdict of `저장 가능`, `수정 후 저장`, or `추가 확인 후 저장`. Resolve one important misconception at a time with `$teach-course-material`; update the draft only after the learner demonstrates or explicitly confirms the corrected understanding. An unresolved point may instead remain clearly labeled as uncertainty.
 - Treat `$save-today-til` as a formatter and filer, not a factual reviewer. In the normal daily flow, run the pre-save review first. If the current conversation still has unresolved blocking findings, do not finalize them as factual claims unless the user explicitly chooses to preserve them as uncertainty.
 - After review, distinguish what the learner demonstrated from what the tutor merely corrected. Use only the former as evidence for practice and knowledge decisions.
-- Keep hands-on work separate from lesson evaluation. `$suggest-learning-practice` requires one explicitly named, validated `til/YYYY/MM/YYYY-MM-DD.md`; never infer the latest note or accept `today.md`. Follow its exact source links and stop rather than guessing when a source-based TIL has no resolvable material.
+- Keep hands-on work separate from lesson evaluation. `$suggest-learning-practice` requires one explicitly named, validated `til/YYYY/MM/YYYY-MM-DD.md`; never infer the latest note or accept `til/today.md` or the legacy root draft. Follow its exact source links and stop rather than guessing when a source-based TIL has no resolvable material.
 - Invoking `$suggest-learning-practice` authorizes one unexecuted Notebook workbook by default when practice adds value, unless the user asks for a decision only. Choose Core, Applied, or Advanced from demonstrated understanding, use the smallest sufficient depth, and create no file when reteaching, more learner evidence, or no extra practice is the better outcome.
 - Build the workbook from `practice/template.ipynb` at `practice/<area>/<topic>.ipynb`. Link the exact TIL and its sources, explain why the task fits now, provide ordered instructions, starter code, progressive hints, completion criteria, and interpretation prompts. Do not overwrite learner work, include a full answer, invent output, execute the Notebook, or commit it unless separately asked.
 - Use Kaggle only when data handling, validation, metrics, or error analysis is the point; use local code or benchmarks for mechanics and systems topics. Verify any current recommendation.
 - When a user requests the full daily flow, coordinate the separate skills in the order above; do not merge their responsibilities into a new orchestration skill.
+- For an interactive named-source lesson using both coaching and teaching, `$coach-llm-research-study` owns the source audit, lesson contract, and fresh semantic review; `$teach-course-material` may start only after the handoff validator reports ready. Allow at most two total semantic-review attempts. If a fresh reviewer is unavailable or the second attempt does not pass, keep the handoff blocked and do not teach from that contract.
+- During that interactive lesson, append to `til/today.md` only a learner-authored answer that has been assessed as confirmed. Keep partial answers, misconceptions, simple agreement, copied tutor wording, source summaries, and tutor assessments in the temporary handoff only; a corrected explain-back is new evidence rather than a rewrite of the earlier attempt.
 
 ## TIL, knowledge, and practice
 
@@ -78,7 +86,7 @@ register source material -> audit and learn at the learner's level
 - Use one TIL per study day under `til/YYYY/MM/`. Final notes follow `til/template.md`; natural prose is preferred inside its sections and empty optional sections may be omitted.
 - When the draft clearly distinguishes them, preserve `### 라이브 수업` and `### 보충 학습` under `오늘의 학습`; do not invent that distinction when it is absent.
 - For source-based study, keep an exact resolvable source link under the finalized TIL's `관련 기록`; that TIL is the required entry point for later practice.
-- Treat `today.md` as a local inbox, not a knowledge artifact. Reset it only after `$save-today-til` has written and validated the destination.
+- Treat `til/today.md` as a local inbox, not a knowledge artifact. Reset it only after `$save-today-til` has written, validated, and committed the destination. Keep it ignored and untracked.
 - Treat `knowledge/` as the learner's current state of knowledge. Use one date-free file per reusable concept and revise outdated understanding in place.
 - Synthesize at most a few durable ideas into knowledge notes rather than copying an entire TIL. Not every TIL needs a corresponding knowledge note, and an explicit zero-change result is acceptable.
 - Short code may stay in a TIL; use `.ipynb` as the primary artifact for generated practice workbooks.
@@ -110,4 +118,4 @@ python3 .agents/skills/update-learning-knowledge/scripts/validate_knowledge.py p
 
 ## Git
 
-Do not commit or push unless the user explicitly asks. A request to commit does not imply permission to push. Stage only exact authorized paths, review the staged diff, and never rewrite history or force-push without explicit authorization.
+Do not commit or push unless the user explicitly asks. A request to commit does not imply permission to push. Explicitly invoking `$save-today-til` or asking to finalize a daily TIL is the narrow exception: it authorizes exactly one path-limited commit containing only the dated `til/YYYY/MM/YYYY-MM-DD.md`, after validation. It never authorizes a push, another file, or cleanup before commit success. Stage only exact authorized paths, review the staged diff, and never rewrite history or force-push without explicit authorization.

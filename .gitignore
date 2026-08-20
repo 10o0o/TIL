@@ -1,8 +1,9 @@
 # Local course material in this public repository
 materials/private/
 
-# Local scratchpad finalized by $save-today-til
+# Local scratchpads finalized by $save-today-til
 /today.md
+/til/today.md
 
 # Generated previews and caches
 tmp/

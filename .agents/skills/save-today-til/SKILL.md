@@ -1,11 +1,13 @@
 ---
 name: save-today-til
-description: Parse a freely written Markdown study draft, especially a file named today.md, into the canonical Korean TIL template, save or merge it at til/YYYY/MM/YYYY-MM-DD.md, commit that dated TIL, and reset the source today.md after success. Use only when the user explicitly invokes $save-today-til or explicitly asks to finalize, file, or save a named rough note as a daily TIL. Do not use for tutoring feedback, factual auditing, knowledge-base synthesis, practice recommendations, or generic Markdown editing.
+description: Parse the canonical ignored draft til/today.md, or an explicitly named repository Markdown draft, into the Korean TIL template, save or merge it at til/YYYY/MM/YYYY-MM-DD.md, commit only that dated TIL, and clean up the canonical draft after success. Use only when the user explicitly invokes $save-today-til or asks to finalize, file, or save a named rough note as a daily TIL. Do not use for tutoring feedback, factual auditing, knowledge-base synthesis, practice recommendations, or generic Markdown editing.
 ---
 
 # Save Today TIL
 
 Turn one rough study memo into this repository's dated TIL without replacing the learner's thinking with a textbook summary.
+
+Explicit invocation of this skill authorizes exactly one path-limited commit containing the resulting dated TIL. It does not authorize committing any other path or pushing.
 
 ## Respect the review boundary
 
@@ -13,16 +15,18 @@ This skill formats and files a draft; it does not establish conceptual correctne
 
 - In the normal daily workflow, use `$coach-llm-research-study` to review the draft against its studied source before invoking this skill.
 - Do not perform a source audit merely because no prior review is visible; a standalone save request remains valid, and a TIL may intentionally preserve uncertainty.
+- When `tmp/active-lesson-handoff.md` and its evidence markers contributed to the canonical draft, require the coach's pre-save review of that draft. The handoff's lesson-contract review is not a substitute for a TIL readiness verdict.
 - If the current conversation contains a pre-save verdict with unresolved `반드시 수정` or `추가 확인` findings, do not finalize those statements as established facts. Continue only after the learner resolves them, asks to express them explicitly as uncertainty, or knowingly asks to preserve the unverified draft.
 - Never treat a `저장 가능` verdict as evidence for `knowledge/`; it only means the draft is suitable as a chronological TIL.
 
 ## Resolve the input
 
 1. Work from the repository root.
-2. Use the file named by the user. If none is named, use `today.md`.
+2. Use the file named by the user. If none is named, use `til/today.md`. Never fall back automatically to root `today.md`; accept it only when the user explicitly names that legacy input.
 3. Require a Markdown file inside this repository. Do not read from or write to `archive/` for this workflow.
-4. Read the entire draft and `til/template.md` before editing anything.
-5. Treat a missing file, an empty file, or the reset comment alone as having nothing to save. Report that and make no other changes.
+4. If the default `til/today.md` does not exist, create it with only the reset comment below, report that there is nothing to save, and stop. Treat any other missing input as an error without creating it.
+5. Read the entire draft and `til/template.md` before editing anything.
+6. Treat an empty file or the reset comment alone as having nothing to save. Report that and make no other changes.
 
 ## Choose the date and destination
 
@@ -67,15 +71,22 @@ Keep pre-save factual evaluation in `$coach-llm-research-study`, reusable concep
 - If the destination does not exist, create it from the template with all placeholders removed.
 - If the destination exists, read it fully and merge new material into the matching sections. Preserve existing content and remove only clear duplication. Never overwrite the file wholesale.
 - Resolve relative links from the source location and rewrite them relative to the destination. Do not create a link unless its target is known and exists.
+- Before parsing a handoff-backed draft, validate and remove only its paired internal evidence comments with:
+
+  ```bash
+  python3 .agents/skills/save-today-til/scripts/strip_lesson_evidence_markers.py til/today.md
+  ```
+
+  Use the printed cleaned draft as the parsing input; the helper does not mutate the inbox. It preserves the learner content enclosed by each valid pair and rejects malformed, unmatched, nested, duplicate, or hash-inconsistent marker blocks. Do not reproduce the envelope comments in the destination. No `lesson-evidence` marker may remain in the finalized TIL.
 - Use `apply_patch` for the note and other text changes.
 - Do not reset the source until the destination passes validation and its dated TIL commit succeeds.
-- After those steps succeed, if the source file's basename is `today.md`—including an explicitly named repository-relative path such as `til/today.md`—replace it with only:
+- After those steps succeed, replace the canonical `til/today.md`, or explicitly named legacy root `today.md`, with only:
 
 ```markdown
 <!-- 형식 없이 자유롭게 작성하세요. 저장할 때 $save-today-til을 사용합니다. -->
 ```
 
-- Leave a named source whose basename is not `today.md` unchanged unless the user explicitly asks to remove or reset it.
+- Leave every other explicitly named source unchanged, including another directory's file whose basename happens to be `today.md`, unless the user explicitly asks to reset it.
 - Do not update `knowledge/`, create a practice file, or push as part of this skill unless the user explicitly requests that separate action.
 
 ## Validate, commit, and report
@@ -87,13 +98,22 @@ python3 .agents/skills/save-today-til/scripts/validate_til.py til/YYYY/MM/YYYY-M
 git diff --check -- til/YYYY/MM/YYYY-MM-DD.md
 ```
 
-Read the final file once more, then commit only the exact dated TIL:
+Read the final file once more, then commit only the exact dated TIL. The final validator already rejects remaining HTML comments, including internal evidence markers.
 
 1. Run `git status --short` and preserve all unrelated worktree and staged changes.
-2. Stage only `til/YYYY/MM/YYYY-MM-DD.md`.
+2. Stage only `til/YYYY/MM/YYYY-MM-DD.md`. Do not unstage, discard, or otherwise alter unrelated staged work.
 3. Inspect `git diff --cached --name-status -- til/YYYY/MM/YYYY-MM-DD.md` and run `git diff --cached --check -- til/YYYY/MM/YYYY-MM-DD.md`.
-4. Commit only that path with the message `til: YYYY-MM-DD 학습 기록`. Use a path-limited commit so unrelated staged changes cannot enter the commit.
-5. If the dated TIL has no change to commit, do not create an empty commit. Leave the source unchanged and report that no new commit was created.
+4. Commit with `git commit --only -m "til: YYYY-MM-DD 학습 기록" -- til/YYYY/MM/YYYY-MM-DD.md` so unrelated staged changes cannot enter the commit.
+5. If the dated TIL has no change to commit, do not create an empty commit. Leave the source unchanged and report that no new commit was created, except for the interrupted-cleanup recovery below.
 6. Do not push.
 
-After the commit succeeds, reset the source when its basename is `today.md`. Read the reset source and inspect the created commit's changed paths. Report the saved path, whether an existing daily note was merged, the commit hash, whether `today.md` was reset, and any check that could not be completed.
+After the commit succeeds:
+
+1. inspect the created commit and require its changed-path set to equal the one dated TIL path;
+2. reset the canonical or explicitly named legacy inbox as described above;
+3. delete `tmp/active-lesson-handoff.md` only when it corresponds to this draft, its status is `completed`, and every confirmed evidence item is already marked `drafted`; otherwise preserve it;
+4. read the reset source and report the saved path, whether an existing daily note was merged, the commit hash, the exact committed path, draft and handoff cleanup, and any check that could not be completed.
+
+If validation, staging checks, a commit hook, or the commit fails, do not reset the draft or delete the handoff. Do not create an empty commit and never push.
+
+If a previous invocation already reported an exact successful commit hash but stopped before cleanup, a rerun may finish only the cleanup even though the dated TIL now has no diff. First require that the recorded commit is reachable from the current `HEAD`, its changed-path set is exactly the intended dated TIL, the destination worktree file still matches that commit, and the completed handoff still corresponds to this canonical draft with every confirmed evidence item drafted. If the exact prior commit hash is unavailable or any check differs, preserve the draft and handoff instead of guessing.

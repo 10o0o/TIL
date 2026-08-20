@@ -1,6 +1,6 @@
 ---
 name: coach-llm-research-study
-description: Audit AI, machine learning, deep learning, LLM, or mathematics lecture materials and assess the learner's demonstrated understanding, including reviewing a rough today.md against the studied sources before it is finalized as a TIL. Use for pre-save TIL validation, lecture PDF review, finalized TIL feedback, knowledge-note accuracy review, or questions about misconceptions, confusion, missing essential concepts, omitted prerequisites, undefined notation, inaccurate claims, misleading simplifications, implementation details, and high-leverage concepts for an LLM Research Engineer. When invoked with $teach-course-material, provide prioritized evaluation findings for the adaptive lesson. Do not use to deliver a full course lesson, write or organize TIL files, write the knowledge base, or recommend Kaggle, projects, or extra practice.
+description: Audit AI, machine learning, deep learning, LLM, or mathematics lecture materials and assess the learner's demonstrated understanding, including reviewing til/today.md before it is finalized as a TIL. Use for source and curriculum-coverage audits, pre-save TIL validation, lecture PDF review, finalized TIL feedback, knowledge-note accuracy review, or questions about misconceptions, missing prerequisites, notation, inaccurate claims, misleading simplifications, and high-leverage concepts for an LLM Research Engineer. When invoked with $teach-course-material for an interactive named-source lesson, prepare and independently review its temporary lesson contract before teaching. Do not use to deliver the lesson, organize TIL files, write the knowledge base, or recommend practice.
 ---
 
 # Evaluate LLM Research Study
@@ -10,7 +10,7 @@ Act as the learner's AI/ML/LLM evaluator. Identify what the source or learner un
 ## Establish the lesson context
 
 1. Read the complete source, including PDF figures, formulas, code, tables, appendices, and expanded toggle content. Render pages when extraction may have lost layout or notation.
-2. Read the lesson objective, table of contents, adjacent lesson titles, `ROADMAP.md`, and relevant `knowledge/` notes when available.
+2. Read the lesson objective, table of contents, adjacent lesson titles, `ROADMAP.md`, relevant competency rows in `CURRICULUM.md`, and relevant `knowledge/` notes when available.
 3. Start from the learner's rough explanation or TIL when one exists; audit the source alone when it does not.
 4. Infer what the lesson is trying to teach and what it intentionally postpones. If adjacent course context is unavailable, label uncertainty instead of claiming that a topic was definitely omitted.
 5. For each essential concept the lesson uses, check for demonstrated understanding in the current conversation, relevant `knowledge/`, learner-authored TIL, and interpreted practice. Treat absent evidence as unconfirmed understanding even when the source itself introduces the concept. Use archived notes and tutor-authored prose only as context unless learner-authored evidence independently supports them.
@@ -37,6 +37,51 @@ Do not call an alternative notation convention an error. Distinguish clearly amo
 4. reasonable to defer to a later lesson.
 
 Verify questionable claims with primary sources, papers, textbooks, or official documentation. Browse when the fact is current, implementation-specific, niche, or uncertain. Separate source-backed facts from inference and state confidence when the evidence is incomplete.
+
+## Map audited sources to the curriculum
+
+Apply this procedure when a source is added or replaced, when its course index changes, or when the user asks whether current materials cover the LLM Research Engineer curriculum. This source-and-coverage audit is separate from both the lesson-contract gate and the later TIL pre-save review.
+
+Keep an assessment-only request read-only: report proposed registry and competency changes without editing `CURRICULUM.md`. Persist the mapping only as part of an authorized source registration or replacement, or when the user explicitly asks to update the curriculum.
+
+1. Resolve the course `INDEX.md` and verify index-to-file and file-to-index parity. Read the entire source, inspect every linked local asset, render every PDF page, and compute the exact file SHA-256. Do not mark an unreadable or incomplete source as complete.
+2. Register or update the stable `SRC-<COURSE>-<LESSON>` row in `CURRICULUM.md`. Record the exact repository-relative path, format, hash, integrity, audit status, audit date, and a concise limitation. Preserve existing source and competency IDs; never repurpose them.
+3. Compare what the source can actually produce against each relevant competency's target depth and required evidence tokens. Record each relationship as `primary`, `supporting`, or `context`; a mention or use case alone is `context`, and context alone can never justify `충분`.
+4. Set coverage from the audited evidence, not topic-name overlap: `충분`, `부분`, `없음`, `판정보류`, or `미감사`. Every gap needs one allowed treatment. A damaged conversion or missing original stays `limited` or `blocked` and uses `원본 복구 후 재감사` when the damage prevents the judgment.
+5. Before finalizing any new `충분` or `부분` judgment, give the complete source, relevant assets, competency row, and proposed mapping to a fresh read-only reviewer. Incorporate concrete corrections; if complete independent review is unavailable, leave the mapping `미감사` or `판정보류` rather than self-approving it.
+6. For a multi-source batch only, temporary recovery notes may live at `tmp/curriculum-audit/<source-id>.md`. Keep only source locations, hashes, findings, and proposed mappings; never treat these notes as learner evidence. Delete them after the reviewed result is integrated into `CURRICULUM.md`.
+7. Run structural validation, then strict source validation when the private material is available:
+
+   ```bash
+   python3 .agents/skills/coach-llm-research-study/scripts/validate_curriculum.py
+   python3 .agents/skills/coach-llm-research-study/scripts/validate_curriculum.py --strict-sources
+   ```
+
+Never add learner completion, dates, scores, mastery boxes, or progress percentages to `CURRICULUM.md`; its statuses describe source coverage only.
+
+## Gate an interactive lesson contract
+
+Apply this gate only when this skill and `$teach-course-material` are used together for an interactive lesson over a named source. Audit-only work, a direct definition, and a short one-off clarification remain read-only and do not require a handoff.
+
+Before creating or reviewing `tmp/active-lesson-handoff.md`, read [the lesson handoff contract](references/lesson-handoff.md) completely and follow its schema, hashing rules, ownership boundaries, and lifecycle. The handoff is the sole ignored resumable cache for an active lesson; it is not a permanent review report, progress record, or proof of learner understanding.
+
+1. Resolve any existing handoff before writing. Resume only when the primary source path and hash still match. Treat changed source, asset, curriculum, or lesson-contract hashes as stale and rebuild the contract. Never overwrite a different `active`, `paused`, or `blocked` lesson without resolving whether to resume or explicitly close and replace it. Replace a `completed` handoff for a new lesson only when every confirmed evidence item is already `drafted`; otherwise recover those pending appends first.
+2. Record the complete input manifest, exact source locations for findings, one to three curriculum target IDs, three to seven essential concepts, learner-evidence baseline, `[선수개념]`, `[정정]`, `[보충]`, teaching sequence, tiny examples or checks, and deliberate deferrals. Do not copy the full source or draft a polished lecture transcript.
+3. Validate the preparing handoff with:
+
+   ```bash
+   python3 .agents/skills/coach-llm-research-study/scripts/validate_lesson_handoff.py tmp/active-lesson-handoff.md
+   ```
+
+4. Give the source, its referenced assets, the relevant curriculum rows, learner evidence, and the contract to a fresh read-only reviewer that did not author the contract. Do not provide a desired verdict. The reviewer checks facts, formulas, shapes, code mappings, marker classification, curriculum fit, scope, and evidence provenance.
+5. Allow no more than two total semantic-review attempts: the initial review, then at most one contract correction and review by another fresh reviewer. If a fresh reviewer is unavailable, cannot read the complete inputs, or the second attempt does not pass, set the handoff to `blocked` and do not hand it to teaching. Never replace this gate with self-review.
+6. A review pass is valid only for the exact current input-manifest and lesson-contract hashes. After a pass, require the readiness check before teaching:
+
+   ```bash
+   python3 .agents/skills/coach-llm-research-study/scripts/validate_lesson_handoff.py --ready tmp/active-lesson-handoff.md
+   ```
+
+Changing learner evidence or the current teaching position does not by itself invalidate the reviewed contract. Changing an input, curriculum mapping, or reviewed contract does.
 
 ## Prioritize for this learner
 
@@ -68,7 +113,7 @@ Keep this distinction explicit so a later practice or knowledge decision does no
 
 ## Review a TIL draft before saving
 
-When the user asks to validate `today.md` or another rough note before saving:
+When the user asks to validate `til/today.md` or another rough note before saving:
 
 1. Resolve the exact draft and the material studied from the user's request, source links in the draft, and the current learning conversation. Ask only when different possible sources would materially change the review.
 2. Read the complete relevant source, the draft, the relevant learning exchange, and only directly related `knowledge/` or executed `practice/` evidence.
@@ -130,7 +175,7 @@ When the user asks to save the result:
 
 When the user asks to persist current understanding, provide the assessment evidence to `$update-learning-knowledge` and let that skill decide whether to create, update, or skip a knowledge note. Do not write evaluator prose into the knowledge base yourself.
 
-Do not create separate progress, review, or evidence documents. Do not create an experiment record for code that was never run.
+Do not create durable progress, review, or evidence documents. The ignored `tmp/active-lesson-handoff.md` is allowed only as operational state for an interactive lesson, and `tmp/curriculum-audit/` is allowed only as disposable batch-audit recovery state until its reviewed findings are integrated. Do not create an experiment record for code that was never run.
 
 ## Review a finalized learner note
 
