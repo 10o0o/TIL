@@ -61,7 +61,7 @@ A direct definition, factual correction, or short one-off clarification stays re
 - If the user only says "continue" and no active handoff exists, do not infer a source even when only one candidate seems likely. Ask for the exact source or lesson instead.
 - When the same primary source path and hash return after context loss, continue from `Current Position` and `next_question`; do not restart the lesson. If an input or contract hash is stale, return it to the coach for rebuild and fresh review.
 - Do not overwrite another active, paused, or blocked lesson. Resolve whether the learner wants to resume it or explicitly close and replace it. A completed handoff is replaceable only after every confirmed evidence item is `drafted`; otherwise recover the pending appends first.
-- After each meaningful chunk, update only the current position and next question. These operational updates do not claim that the learner understood the explanation.
+- After each meaningful chunk, update the current position, next question, and that concept's `Daily Learning Coverage` state. Use `confirmed` only with matching learner evidence, `uncertain` when the concept was actually discussed but is not yet established, and leave untouched concepts `deferred`. A confirmed evidence append may change its TIL representation to `learning`; otherwise use `missing` until the learner's uncertainty or answer is honestly represented. When an uncertainty is written under `## 남은 질문`, use `remaining-question` and put `draft-anchor: <exact excerpt>` in the coverage Note. These operational updates do not make tutor explanation into learner understanding.
 
 ## Teach for connected understanding
 

@@ -64,6 +64,10 @@ def build_handoff(
     lesson_id: str = "tensor-shape-lesson",
     primary_path: str = "materials/lesson.md",
     primary_bytes: bytes = b"# Lesson\n\n## axes\n\nTensor axes.\n",
+    coverage: list[dict[str, str]] | None = None,
+    pre_save_verdict: str = "pending",
+    reviewed_at: str = "pending",
+    reviewed_draft_sha256: str = "pending",
 ) -> tuple[Path, dict[str, str]]:
     reviews = reviews or []
     evidence = evidence or []
@@ -136,6 +140,22 @@ def build_handoff(
 <!-- learner-evidence:{evidence_id}:end -->
 """
 
+    if coverage is None:
+        coverage = [
+            {
+                "concept": concept,
+                "state": "deferred",
+                "evidence_ids": "none",
+                "representation": "not-required",
+                "note": "Not taught yet.",
+            }
+            for concept in ("C01", "C02", "C03")
+        ]
+    coverage_rows = "\n".join(
+        "| {concept} | {state} | {evidence_ids} | {representation} | {note} |".format(**row)
+        for row in coverage
+    )
+
     next_concept = "none" if status == "completed" else "C01"
     rows = "\n".join(f"| {item_id} | {role} | {path} | {digest} |" for item_id, role, path, digest in manifest_rows)
     text = f"""# Active Lesson Handoff
@@ -145,7 +165,7 @@ def build_handoff(
 
 ## Metadata
 
-- schema_version: 1
+- schema_version: 2
 - lesson_id: {lesson_id}
 - title: Tensor shape lesson
 - status: {status}
@@ -176,6 +196,16 @@ def build_handoff(
 - last_completed: none
 - next_concept: {next_concept}
 - next_question: Explain the next shape transition.
+
+## Daily Learning Coverage
+
+- pre_save_verdict: {pre_save_verdict}
+- reviewed_at: {reviewed_at}
+- reviewed_draft_sha256: {reviewed_draft_sha256}
+
+| Concept ID | Today state | Evidence IDs | TIL representation | Note |
+| --- | --- | --- | --- | --- |
+{coverage_rows}
 
 ## Learner Evidence
 {evidence_text}

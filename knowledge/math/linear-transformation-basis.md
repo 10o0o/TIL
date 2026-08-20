@@ -84,5 +84,4 @@ A @ e2 = [1, 1]
 
 - Knowledge: [행렬곱과 완전연결층](./matrix-multiplication-linear-layer.md)
 - TIL: [2026-08-18](../../til/2026/08/2026-08-18.md)
-- Practice: [선형 변환, rank, 연립방정식](../../practice/math/linear-transform-rank-systems.ipynb)
 - Source: [선형 변환의 기하학적 해석](../../materials/private/kant-basic-math/02-01_선형_변환의_기하학적_해석.md)

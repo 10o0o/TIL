@@ -67,4 +67,3 @@ H_unit: (2, 3, 4)
 
 - Knowledge: [벡터 L2 정규화](./vector-l2-normalization.md)
 - TIL: [2026-08-13](../../til/2026/08/2026-08-13.md)
-- Practice: [벡터 정규화에서 axis와 keepdims 추론](../../practice/math/vector-normalization-axis.ipynb)

@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -15,7 +16,7 @@ REPO = SKILL.parents[2]
 sys.path.insert(0, str(SKILL / "scripts"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from handoff_fixture import CONTRACT, build_handoff, sha256  # noqa: E402
+from handoff_fixture import CONTRACT, build_handoff, draft_envelope, sha256  # noqa: E402
 from validate_lesson_handoff import validate_handoff  # noqa: E402
 
 
@@ -25,6 +26,50 @@ class LessonHandoffValidatorTests(unittest.TestCase):
 
     def assert_code(self, report, code: str) -> None:
         self.assertIn(code, {error.code for error in report.errors}, report.errors)
+
+    def build_til_ready_handoff(self, root: Path) -> Path:
+        content = "배치 축과 특성 축을 구분해 결과 shape를 설명했다."
+        draft = root / "til/today.md"
+        draft.parent.mkdir(parents=True, exist_ok=True)
+        draft.write_text(
+            "# 오늘의 학습\n\n"
+            + draft_envelope("tensor-shape-lesson", "E001", content)
+            + "\n\n## 남은 질문\n\nBroadcasting에서 오른쪽 축부터 비교하는 이유는 무엇인가?\n",
+            encoding="utf-8",
+        )
+        handoff, _ = build_handoff(
+            root,
+            status="paused",
+            reviews=[("pass", "fresh-reviewer")],
+            evidence=[{"concept": "C01", "content": content, "append_state": "drafted"}],
+            coverage=[
+                {
+                    "concept": "C01",
+                    "state": "confirmed",
+                    "evidence_ids": "E001",
+                    "representation": "learning",
+                    "note": "Learner explanation is present in the draft.",
+                },
+                {
+                    "concept": "C02",
+                    "state": "uncertain",
+                    "evidence_ids": "none",
+                    "representation": "remaining-question",
+                    "note": "draft-anchor: Broadcasting에서 오른쪽 축부터 비교하는 이유는 무엇인가?",
+                },
+                {
+                    "concept": "C03",
+                    "state": "deferred",
+                    "evidence_ids": "none",
+                    "representation": "not-required",
+                    "note": "Not taught today.",
+                },
+            ],
+            pre_save_verdict="저장 가능",
+            reviewed_at="2026-08-20T02:00:00Z",
+            reviewed_draft_sha256=sha256(draft.read_bytes()),
+        )
+        return handoff
 
     def test_preparing_handoff_is_structurally_valid_but_not_ready(self) -> None:
         with self.make_root() as directory:
@@ -41,6 +86,104 @@ class LessonHandoffValidatorTests(unittest.TestCase):
             handoff, _ = build_handoff(root, status="active", reviews=[("pass", "fresh-reviewer")])
             report = validate_handoff(handoff, repo_root=root, ready=True)
             self.assertTrue(report.ok, report.errors)
+
+    def test_til_ready_accepts_complete_learning_and_uncertainty_inventory(self) -> None:
+        with self.make_root() as directory:
+            root = Path(directory)
+            handoff = self.build_til_ready_handoff(root)
+            report = validate_handoff(handoff, repo_root=root, til_ready=True)
+            self.assertTrue(report.ok, report.errors)
+
+    def test_til_ready_rejects_missing_confirmed_or_uncertain_concept(self) -> None:
+        with self.make_root() as directory:
+            root = Path(directory)
+            handoff = self.build_til_ready_handoff(root)
+            text = handoff.read_text(encoding="utf-8").replace(
+                "| C01 | confirmed | E001 | learning |",
+                "| C01 | confirmed | E001 | missing |",
+            )
+            handoff.write_text(text, encoding="utf-8")
+            report = validate_handoff(handoff, repo_root=root, til_ready=True)
+            self.assert_code(report, "TIL_COVERAGE")
+
+            handoff = self.build_til_ready_handoff(root)
+            text = handoff.read_text(encoding="utf-8").replace(
+                "| C02 | uncertain | none | remaining-question |",
+                "| C02 | uncertain | none | missing |",
+            )
+            handoff.write_text(text, encoding="utf-8")
+            report = validate_handoff(handoff, repo_root=root, til_ready=True)
+            self.assert_code(report, "TIL_COVERAGE")
+
+    def test_til_ready_rejects_claimed_uncertainty_without_draft_question(self) -> None:
+        with self.make_root() as directory:
+            root = Path(directory)
+            handoff = self.build_til_ready_handoff(root)
+            draft = root / "til/today.md"
+            draft.write_text(
+                draft.read_text(encoding="utf-8").split("\n\n## 남은 질문", 1)[0] + "\n",
+                encoding="utf-8",
+            )
+            handoff_text = handoff.read_text(encoding="utf-8")
+            old_hash = re.search(r"- reviewed_draft_sha256: ([0-9a-f]{64})", handoff_text)
+            self.assertIsNotNone(old_hash)
+            handoff.write_text(
+                handoff_text.replace(old_hash.group(1), sha256(draft.read_bytes()), 1),
+                encoding="utf-8",
+            )
+            report = validate_handoff(handoff, repo_root=root, til_ready=True)
+            self.assert_code(report, "TIL_COVERAGE")
+
+    def test_til_ready_rejects_uncertain_anchor_missing_from_question(self) -> None:
+        with self.make_root() as directory:
+            root = Path(directory)
+            handoff = self.build_til_ready_handoff(root)
+            text = handoff.read_text(encoding="utf-8").replace(
+                "draft-anchor: Broadcasting에서 오른쪽 축부터 비교하는 이유는 무엇인가?",
+                "draft-anchor: 초안에 없는 질문",
+            )
+            handoff.write_text(text, encoding="utf-8")
+            report = validate_handoff(handoff, repo_root=root, til_ready=True)
+            self.assert_code(report, "TIL_COVERAGE")
+
+    def test_til_ready_ignores_deferred_source_content(self) -> None:
+        with self.make_root() as directory:
+            root = Path(directory)
+            handoff = self.build_til_ready_handoff(root)
+            report = validate_handoff(handoff, repo_root=root, til_ready=True)
+            self.assertTrue(report.ok, report.errors)
+            self.assertEqual(report.document.learning_coverage["C03"].til_representation, "not-required")
+
+    def test_til_ready_rejects_stale_draft_and_missing_contract_review(self) -> None:
+        with self.make_root() as directory:
+            root = Path(directory)
+            handoff = self.build_til_ready_handoff(root)
+            with (root / "til/today.md").open("a", encoding="utf-8") as stream:
+                stream.write("\nchanged after review\n")
+            report = validate_handoff(handoff, repo_root=root, til_ready=True)
+            self.assert_code(report, "TIL_REVIEW_STALE")
+
+            handoff, _ = build_handoff(
+                root,
+                status="paused",
+                pre_save_verdict="저장 가능",
+                reviewed_at="2026-08-20T02:00:00Z",
+                reviewed_draft_sha256=sha256((root / "til/today.md").read_bytes()),
+            )
+            report = validate_handoff(handoff, repo_root=root, til_ready=True)
+            self.assert_code(report, "REVIEW_NOT_PASS")
+
+    def test_til_ready_rejects_confirmed_evidence_not_yet_drafted(self) -> None:
+        with self.make_root() as directory:
+            root = Path(directory)
+            handoff = self.build_til_ready_handoff(root)
+            text = handoff.read_text(encoding="utf-8").replace(
+                "- append_state: drafted",
+                "- append_state: pending",
+            )
+            handoff.write_text(text, encoding="utf-8")
+            report = validate_handoff(handoff, repo_root=root, til_ready=True)
+            self.assert_code(report, "TIL_COVERAGE")
 
     def test_ready_rejects_checkpoint_outside_contract(self) -> None:
         with self.make_root() as directory:
@@ -332,6 +475,23 @@ class LessonHandoffValidatorTests(unittest.TestCase):
             result.stderr,
             r"^ERROR <cli>:1 \[SCHEMA\] the following arguments are required: handoff\n$",
         )
+
+        conflict = subprocess.run(
+            [
+                sys.executable,
+                str(SKILL / "scripts/validate_lesson_handoff.py"),
+                "--ready",
+                "--til-ready",
+                "tmp/active-lesson-handoff.md",
+            ],
+            cwd=REPO,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(conflict.returncode, 2)
+        self.assertEqual(conflict.stdout, "")
+        self.assertRegex(conflict.stderr, r"^ERROR <cli>:1 \[SCHEMA\] argument --til-ready: not allowed with argument --ready\n$")
 
 
 def re_sub_field(text: str, key: str, value: str) -> str:

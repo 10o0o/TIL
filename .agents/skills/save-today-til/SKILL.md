@@ -1,6 +1,6 @@
 ---
 name: save-today-til
-description: Parse the canonical ignored draft til/today.md, or an explicitly named repository Markdown draft, into the Korean TIL template, save or merge it at til/YYYY/MM/YYYY-MM-DD.md, commit only that dated TIL, and clean up the canonical draft after success. Use only when the user explicitly invokes $save-today-til or asks to finalize, file, or save a named rough note as a daily TIL. Do not use for tutoring feedback, factual auditing, knowledge-base synthesis, practice recommendations, or generic Markdown editing.
+description: Parse the canonical ignored draft til/today.md, or an explicitly named repository Markdown draft, into the Korean TIL template, enforce the current coach completeness gate for a handoff-backed draft, save or merge it at til/YYYY/MM/YYYY-MM-DD.md, commit only that dated TIL, and clean up the canonical draft after success. Use only when the user explicitly invokes $save-today-til or asks to finalize, file, or save a named rough note as a daily TIL. Do not use for tutoring feedback, factual or completeness auditing, knowledge-base synthesis, practice recommendations, or generic Markdown editing.
 ---
 
 # Save Today TIL
@@ -15,7 +15,7 @@ This skill formats and files a draft; it does not establish conceptual correctne
 
 - In the normal daily workflow, use `$coach-llm-research-study` to review the draft against its studied source before invoking this skill.
 - Do not perform a source audit merely because no prior review is visible; a standalone save request remains valid, and a TIL may intentionally preserve uncertainty.
-- When `tmp/active-lesson-handoff.md` and its evidence markers contributed to the canonical draft, require the coach's pre-save review of that draft. The handoff's lesson-contract review is not a substitute for a TIL readiness verdict.
+- When `tmp/active-lesson-handoff.md` and its evidence markers contributed to the canonical draft, require the coach's complete-scope pre-save review of that exact draft. Run the handoff validator with `--til-ready`; a lesson-contract review or a stale draft hash is not a substitute for this gate.
 - If the current conversation contains a pre-save verdict with unresolved `반드시 수정` or `추가 확인` findings, do not finalize those statements as established facts. Continue only after the learner resolves them, asks to express them explicitly as uncertainty, or knowingly asks to preserve the unverified draft.
 - Never treat a `저장 가능` verdict as evidence for `knowledge/`; it only means the draft is suitable as a chronological TIL.
 
@@ -74,10 +74,17 @@ Keep pre-save factual evaluation in `$coach-llm-research-study`, reusable concep
 - Before parsing a handoff-backed draft, validate and remove only its paired internal evidence comments with:
 
   ```bash
+  python3 .agents/skills/coach-llm-research-study/scripts/validate_lesson_handoff.py \
+    --til-ready tmp/active-lesson-handoff.md
   python3 .agents/skills/save-today-til/scripts/strip_lesson_evidence_markers.py til/today.md
   ```
 
-  Use the printed cleaned draft as the parsing input; the helper does not mutate the inbox. It preserves the learner content enclosed by each valid pair and rejects malformed, unmatched, nested, duplicate, or hash-inconsistent marker blocks. Do not reproduce the envelope comments in the destination. No `lesson-evidence` marker may remain in the finalized TIL.
+  Stop without changing the draft or handoff if `--til-ready` fails. Use the
+  printed cleaned draft as the parsing input only after it passes; the helper
+  does not mutate the inbox. It preserves the learner content enclosed by each
+  valid pair and rejects malformed, unmatched, nested, duplicate, or
+  hash-inconsistent marker blocks. Do not reproduce the envelope comments in
+  the destination. No `lesson-evidence` marker may remain in the finalized TIL.
 - Use `apply_patch` for the note and other text changes.
 - Do not reset the source until the destination passes validation and its dated TIL commit succeeds.
 - After those steps succeed, replace the canonical `til/today.md`, or explicitly named legacy root `today.md`, with only:

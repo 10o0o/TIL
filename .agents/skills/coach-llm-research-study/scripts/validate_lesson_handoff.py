@@ -36,6 +36,9 @@ EVIDENCE_KINDS = {
 EVIDENCE_VERDICTS = {"confirmed", "partial", "misconception", "unconfirmed"}
 APPEND_STATES = {"pending", "drafted", "not_eligible"}
 CONCEPT_MARKERS = {"none", "[선수개념]", "[정정]", "[보충]"}
+TODAY_STATES = {"confirmed", "uncertain", "deferred"}
+TIL_REPRESENTATIONS = {"learning", "remaining-question", "missing", "not-required"}
+PRE_SAVE_VERDICTS = {"pending", "저장 가능", "수정 후 저장", "추가 확인 후 저장"}
 HASH_RE = re.compile(r"[0-9a-f]{64}\Z")
 LESSON_ID_RE = re.compile(r"[a-z0-9][a-z0-9-]{2,63}\Z")
 AGENT_ID_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._/@-]{1,127}\Z")
@@ -55,6 +58,7 @@ METADATA_KEYS = (
     "contract_sha256",
 )
 CURRENT_POSITION_KEYS = ("last_completed", "next_concept", "next_question")
+TIL_REVIEW_KEYS = ("pre_save_verdict", "reviewed_at", "reviewed_draft_sha256")
 REVIEW_KEYS = (
     "reviewer_id",
     "reviewer_mode",
@@ -123,6 +127,16 @@ class Evidence:
 
 
 @dataclass
+class LearningCoverage:
+    concept_id: str
+    today_state: str
+    evidence_ids: list[str]
+    til_representation: str
+    note: str
+    line: int
+
+
+@dataclass
 class HandoffDocument:
     path: Path
     repo_root: Path
@@ -136,6 +150,8 @@ class HandoffDocument:
     reviews: list[ReviewAttempt] = field(default_factory=list)
     current_position: dict[str, str] = field(default_factory=dict)
     evidence: dict[str, Evidence] = field(default_factory=dict)
+    til_review: dict[str, str] = field(default_factory=dict)
+    learning_coverage: dict[str, LearningCoverage] = field(default_factory=dict)
     computed_manifest_sha256: str = ""
     computed_contract_sha256: str = ""
 
@@ -144,6 +160,7 @@ class HandoffDocument:
 class ValidationReport:
     path: Path
     ready_requested: bool
+    til_ready_requested: bool
     errors: list[ValidationError]
     document: HandoffDocument | None
 
@@ -168,6 +185,7 @@ class ValidationReport:
             "ok": self.ok,
             "path": self.path.as_posix(),
             "ready": self.ready_requested and self.ok,
+            "til_ready": self.til_ready_requested and self.ok,
             "computed": computed,
             "errors": [error.as_json() for error in self.errors],
         }
@@ -183,6 +201,17 @@ def _sha256_bytes(data: bytes) -> str:
 
 def _line_number(text: str, offset: int) -> int:
     return text.count("\n", 0, offset) + 1
+
+
+def _markdown_h2_body(text: str, heading: str) -> str | None:
+    """Return one level-two Markdown section body without guessing semantics."""
+    match = re.search(rf"^## {re.escape(heading)}[ \t]*$", text, re.MULTILINE)
+    if match is None:
+        return None
+    body_start = match.end()
+    next_heading = re.search(r"^## [^#]", text[body_start:], re.MULTILINE)
+    body_end = body_start + next_heading.start() if next_heading else len(text)
+    return text[body_start:body_end].strip()
 
 
 def _repo_root_from_script() -> Path:
@@ -215,6 +244,7 @@ def _section_ranges(text: str, errors: list[ValidationError]) -> dict[str, tuple
         "Input Manifest",
         "Semantic Review",
         "Current Position",
+        "Daily Learning Coverage",
         "Learner Evidence",
     )
     headings = list(re.finditer(r"^## ([^\n]+)$", text, re.MULTILINE))
@@ -331,8 +361,8 @@ def _parse_metadata(
     start, end, _ = section
     values, lines, _ = _parse_bullets(text=doc.text, start=start, end=end, expected_keys=METADATA_KEYS, errors=errors, context="metadata")
     doc.metadata = values
-    if values.get("schema_version") != "1":
-        errors.append(ValidationError(lines.get("schema_version", 1), "SCHEMA", "schema_version must be 1"))
+    if values.get("schema_version") != "2":
+        errors.append(ValidationError(lines.get("schema_version", 1), "SCHEMA", "schema_version must be 2"))
     if "lesson_id" in values and not LESSON_ID_RE.fullmatch(values["lesson_id"]):
         errors.append(ValidationError(lines["lesson_id"], "SCHEMA", "lesson_id has an invalid format"))
     if not values.get("title"):
@@ -769,6 +799,206 @@ def _parse_evidence(
     doc.evidence = {item.evidence_id: item for item in evidence_items}
 
 
+def _parse_daily_learning_coverage(
+    doc: HandoffDocument,
+    section: tuple[int, int, int] | None,
+    errors: list[ValidationError],
+) -> None:
+    if section is None:
+        return
+    start, end, _ = section
+    region = doc.text[start:end]
+    table_header = re.search(
+        r"^\| Concept ID \| Today state \| Evidence IDs \| TIL representation \| Note \|[ \t]*$",
+        region,
+        re.MULTILINE,
+    )
+    if table_header is None:
+        errors.append(
+            ValidationError(
+                _line_number(doc.text, start),
+                "SCHEMA",
+                "Daily Learning Coverage table columns must be Concept ID | Today state | Evidence IDs | TIL representation | Note",
+            )
+        )
+        values_end = end
+    else:
+        values_end = start + table_header.start()
+
+    values, lines, _ = _parse_bullets(
+        doc.text,
+        start,
+        values_end,
+        TIL_REVIEW_KEYS,
+        errors,
+        context="TIL pre-save review",
+    )
+    doc.til_review = values
+    verdict = values.get("pre_save_verdict")
+    if verdict not in PRE_SAVE_VERDICTS:
+        errors.append(
+            ValidationError(
+                lines.get("pre_save_verdict", _line_number(doc.text, start)),
+                "SCHEMA",
+                "pre_save_verdict is not allowed",
+            )
+        )
+    reviewed_at = values.get("reviewed_at")
+    if reviewed_at not in {None, "pending"} and not _is_rfc3339(reviewed_at):
+        errors.append(
+            ValidationError(lines.get("reviewed_at", 1), "SCHEMA", "reviewed_at must be pending or an RFC 3339 timestamp")
+        )
+    reviewed_hash = values.get("reviewed_draft_sha256")
+    if reviewed_hash not in {None, "pending"} and not HASH_RE.fullmatch(reviewed_hash):
+        errors.append(
+            ValidationError(
+                lines.get("reviewed_draft_sha256", 1),
+                "SCHEMA",
+                "reviewed_draft_sha256 must be pending or lowercase SHA-256",
+            )
+        )
+
+    if table_header is None:
+        return
+    table_start = start + table_header.start()
+    table_lines = doc.text[table_start:end].splitlines()
+    if len(table_lines) < 2:
+        errors.append(ValidationError(_line_number(doc.text, table_start), "SCHEMA", "Daily Learning Coverage table is incomplete"))
+        return
+    separator = _split_table_row(table_lines[1])
+    if separator is None or len(separator) != 5 or not all(re.fullmatch(r":?-{3,}:?", cell) for cell in separator):
+        errors.append(ValidationError(_line_number(doc.text, table_start) + 1, "SCHEMA", "Daily Learning Coverage separator is invalid"))
+
+    coverage: dict[str, LearningCoverage] = {}
+    cursor = table_start + len(table_lines[0]) + 1 + len(table_lines[1]) + 1
+    for raw_line in table_lines[2:]:
+        line_no = _line_number(doc.text, cursor)
+        cursor += len(raw_line) + 1
+        if not raw_line.strip():
+            continue
+        cells = _split_table_row(raw_line)
+        if cells is None or len(cells) != 5:
+            errors.append(ValidationError(line_no, "SCHEMA", "Daily Learning Coverage row must have five cells"))
+            continue
+        concept_id, today_state, raw_evidence, representation, note = cells
+        if concept_id in coverage:
+            errors.append(ValidationError(line_no, "SCHEMA", f"duplicate coverage concept: {concept_id}"))
+            continue
+        evidence_ids = [] if raw_evidence == "none" else [item.strip() for item in raw_evidence.split(",") if item.strip()]
+        row = LearningCoverage(concept_id, today_state, evidence_ids, representation, note, line_no)
+        coverage[concept_id] = row
+        if today_state not in TODAY_STATES:
+            errors.append(ValidationError(line_no, "SCHEMA", f"invalid Today state for {concept_id}: {today_state}"))
+        if representation not in TIL_REPRESENTATIONS:
+            errors.append(ValidationError(line_no, "SCHEMA", f"invalid TIL representation for {concept_id}: {representation}"))
+        if not note:
+            errors.append(ValidationError(line_no, "SCHEMA", f"coverage note must not be empty: {concept_id}"))
+        if today_state == "deferred":
+            if evidence_ids or representation != "not-required":
+                errors.append(ValidationError(line_no, "TIL_COVERAGE", f"deferred {concept_id} requires evidence none and not-required"))
+        elif today_state == "confirmed":
+            if not evidence_ids:
+                errors.append(ValidationError(line_no, "TIL_COVERAGE", f"confirmed {concept_id} requires learner evidence"))
+            if representation not in {"learning", "missing"}:
+                errors.append(ValidationError(line_no, "TIL_COVERAGE", f"confirmed {concept_id} must use learning or missing"))
+        elif today_state == "uncertain" and representation not in {"remaining-question", "missing"}:
+            errors.append(ValidationError(line_no, "TIL_COVERAGE", f"uncertain {concept_id} must use remaining-question or missing"))
+
+    doc.learning_coverage = coverage
+    if list(coverage) != doc.contract_concepts:
+        errors.append(
+            ValidationError(
+                _line_number(doc.text, table_start),
+                "SCHEMA",
+                "Daily Learning Coverage must contain one ordered row per Concept Path concept",
+            )
+        )
+    for row in coverage.values():
+        for evidence_id in row.evidence_ids:
+            if not re.fullmatch(r"E\d{3}", evidence_id):
+                errors.append(ValidationError(row.line, "SCHEMA", f"invalid evidence ID in coverage: {evidence_id}"))
+                continue
+            evidence = doc.evidence.get(evidence_id)
+            if evidence is None:
+                errors.append(ValidationError(row.line, "TIL_COVERAGE", f"coverage references missing evidence: {evidence_id}"))
+                continue
+            if evidence.values.get("concept") != row.concept_id:
+                errors.append(ValidationError(row.line, "TIL_COVERAGE", f"{evidence_id} belongs to a different concept"))
+        if row.today_state == "confirmed" and row.evidence_ids:
+            if not any(
+                doc.evidence.get(evidence_id) is not None
+                and doc.evidence[evidence_id].values.get("verdict") == "confirmed"
+                for evidence_id in row.evidence_ids
+            ):
+                errors.append(ValidationError(row.line, "TIL_COVERAGE", f"confirmed {row.concept_id} requires confirmed evidence"))
+
+
+def _validate_til_readiness(doc: HandoffDocument, errors: list[ValidationError]) -> None:
+    status = doc.metadata.get("status")
+    if status not in {"paused", "completed"}:
+        errors.append(ValidationError(1, "TIL_COVERAGE", "--til-ready requires paused or completed status"))
+    latest = doc.reviews[-1] if doc.reviews else None
+    if latest is None or latest.values.get("verdict") != "pass":
+        errors.append(
+            ValidationError(
+                latest.line if latest else 1,
+                "REVIEW_NOT_PASS",
+                "--til-ready requires a current independent lesson-contract pass",
+            )
+        )
+    elif (
+        latest.values.get("reviewed_input_manifest_sha256") != doc.computed_manifest_sha256
+        or latest.values.get("reviewed_contract_sha256") != doc.computed_contract_sha256
+    ):
+        errors.append(ValidationError(latest.line, "REVIEW_STALE", "--til-ready lesson-contract review hashes are stale"))
+    if doc.til_review.get("pre_save_verdict") != "저장 가능":
+        errors.append(ValidationError(1, "TIL_COVERAGE", "--til-ready requires pre_save_verdict: 저장 가능"))
+    if not _is_rfc3339(doc.til_review.get("reviewed_at", "")):
+        errors.append(ValidationError(1, "TIL_COVERAGE", "--til-ready requires a reviewed_at timestamp"))
+    reviewed_hash = doc.til_review.get("reviewed_draft_sha256", "")
+    if not HASH_RE.fullmatch(reviewed_hash):
+        errors.append(ValidationError(1, "TIL_COVERAGE", "--til-ready requires reviewed_draft_sha256"))
+
+    draft_raw = doc.metadata.get("draft_path", "")
+    draft_path, path_error = _safe_repo_path(draft_raw, doc.repo_root)
+    draft_text: str | None = None
+    if path_error or draft_path is None or not draft_path.is_file():
+        errors.append(ValidationError(1, "TIL_REVIEW_STALE", "reviewed draft is missing or invalid"))
+    elif HASH_RE.fullmatch(reviewed_hash):
+        draft_bytes = draft_path.read_bytes()
+        actual_hash = _sha256_bytes(draft_bytes)
+        if actual_hash != reviewed_hash:
+            errors.append(ValidationError(1, "TIL_REVIEW_STALE", f"reviewed draft hash is stale: got {actual_hash}"))
+        try:
+            draft_text = draft_bytes.decode("utf-8")
+        except UnicodeDecodeError:
+            errors.append(ValidationError(1, "TIL_REVIEW_STALE", "reviewed draft is not valid UTF-8"))
+
+    remaining_questions = _markdown_h2_body(draft_text, "남은 질문") if draft_text is not None else None
+
+    for row in doc.learning_coverage.values():
+        if row.today_state == "confirmed":
+            if row.til_representation != "learning":
+                errors.append(ValidationError(row.line, "TIL_COVERAGE", f"confirmed {row.concept_id} is not represented as learning"))
+            for evidence_id in row.evidence_ids:
+                evidence = doc.evidence.get(evidence_id)
+                if evidence is not None and evidence.values.get("verdict") == "confirmed" and evidence.values.get("append_state") != "drafted":
+                    errors.append(ValidationError(row.line, "TIL_COVERAGE", f"confirmed evidence is not drafted: {evidence_id}"))
+        elif row.today_state == "uncertain":
+            if row.til_representation != "remaining-question":
+                errors.append(ValidationError(row.line, "TIL_COVERAGE", f"uncertain {row.concept_id} is not represented as a remaining question"))
+            elif not remaining_questions:
+                errors.append(ValidationError(row.line, "TIL_COVERAGE", f"uncertain {row.concept_id} requires a non-empty ## 남은 질문 section"))
+            elif not row.note.startswith("draft-anchor: "):
+                errors.append(ValidationError(row.line, "TIL_COVERAGE", f"uncertain {row.concept_id} note must use draft-anchor: <exact excerpt>"))
+            else:
+                anchor = row.note.removeprefix("draft-anchor: ").strip().strip("`")
+                if not anchor or anchor not in remaining_questions:
+                    errors.append(ValidationError(row.line, "TIL_COVERAGE", f"uncertain {row.concept_id} draft anchor is absent from ## 남은 질문"))
+        elif row.today_state == "deferred" and row.til_representation != "not-required":
+            errors.append(ValidationError(row.line, "TIL_COVERAGE", f"deferred {row.concept_id} must be not-required"))
+
+
 def _validate_declared_hashes(doc: HandoffDocument, metadata_lines: dict[str, int], errors: list[ValidationError]) -> None:
     declared_manifest = doc.metadata.get("input_manifest_sha256")
     if HASH_RE.fullmatch(declared_manifest or "") and declared_manifest != doc.computed_manifest_sha256:
@@ -854,6 +1084,7 @@ def validate_handoff(
     *,
     repo_root: Path | str | None = None,
     ready: bool = False,
+    til_ready: bool = False,
     check_draft: bool = True,
 ) -> ValidationReport:
     handoff_path = Path(path)
@@ -865,13 +1096,31 @@ def validate_handoff(
         resolved = handoff_path.resolve(strict=False)
         resolved.relative_to(root)
     except (OSError, ValueError):
-        return ValidationReport(handoff_path, ready, [ValidationError(1, "PATH", "handoff path escapes the repository")], None)
+        return ValidationReport(
+            handoff_path,
+            ready,
+            til_ready,
+            [ValidationError(1, "PATH", "handoff path escapes the repository")],
+            None,
+        )
     if not handoff_path.exists() or not handoff_path.is_file():
-        return ValidationReport(handoff_path, ready, [ValidationError(1, "SOURCE_MISSING", "handoff file does not exist")], None)
+        return ValidationReport(
+            handoff_path,
+            ready,
+            til_ready,
+            [ValidationError(1, "SOURCE_MISSING", "handoff file does not exist")],
+            None,
+        )
     try:
         text = _normalize_newlines(handoff_path.read_text(encoding="utf-8"))
     except UnicodeDecodeError:
-        return ValidationReport(handoff_path, ready, [ValidationError(1, "SCHEMA", "handoff is not valid UTF-8")], None)
+        return ValidationReport(
+            handoff_path,
+            ready,
+            til_ready,
+            [ValidationError(1, "SCHEMA", "handoff is not valid UTF-8")],
+            None,
+        )
 
     doc = HandoffDocument(path=handoff_path, repo_root=root, text=text)
     if not text.startswith("# Active Lesson Handoff\n"):
@@ -886,6 +1135,7 @@ def validate_handoff(
     _parse_review_attempts(doc, sections.get("Semantic Review"), errors)
     _parse_current_position(doc, sections.get("Current Position"), errors)
     _parse_evidence(doc, sections.get("Learner Evidence"), errors)
+    _parse_daily_learning_coverage(doc, sections.get("Daily Learning Coverage"), errors)
     if check_draft:
         _validate_draft(doc, errors)
 
@@ -902,6 +1152,9 @@ def validate_handoff(
         ):
             errors.append(ValidationError(latest.line, "REVIEW_STALE", "--ready review hashes are stale"))
 
+    if til_ready:
+        _validate_til_readiness(doc, errors)
+
     deduplicated: list[ValidationError] = []
     seen: set[tuple[int, str, str]] = set()
     for error in errors:
@@ -909,7 +1162,7 @@ def validate_handoff(
         if key not in seen:
             seen.add(key)
             deduplicated.append(error)
-    return ValidationReport(handoff_path, ready, deduplicated, doc)
+    return ValidationReport(handoff_path, ready, til_ready, deduplicated, doc)
 
 
 class _ContractArgumentParser(argparse.ArgumentParser):
@@ -920,7 +1173,13 @@ class _ContractArgumentParser(argparse.ArgumentParser):
 def _build_parser() -> argparse.ArgumentParser:
     parser = _ContractArgumentParser(description=__doc__)
     parser.add_argument("handoff", type=Path, help="repository-relative active handoff Markdown path")
-    parser.add_argument("--ready", action="store_true", help="also require a current pass and teachable status")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--ready", action="store_true", help="also require a current pass and teachable status")
+    mode.add_argument(
+        "--til-ready",
+        action="store_true",
+        help="also require complete, coach-reviewed representation in the current TIL draft",
+    )
     parser.add_argument("--json", action="store_true", dest="as_json", help="emit machine-readable JSON")
     return parser
 
@@ -928,18 +1187,31 @@ def _build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     try:
-        report = validate_handoff(args.handoff, ready=args.ready)
+        report = validate_handoff(args.handoff, ready=args.ready, til_ready=args.til_ready)
     except Exception as exc:  # pragma: no cover - last-resort CLI boundary
         if args.as_json:
-            print(json.dumps({"ok": False, "path": args.handoff.as_posix(), "ready": False, "computed": {}, "errors": [{"line": 1, "code": "SCHEMA", "message": f"internal error: {exc}"}]}, ensure_ascii=False, indent=2))
+            print(
+                json.dumps(
+                    {
+                        "ok": False,
+                        "path": args.handoff.as_posix(),
+                        "ready": False,
+                        "til_ready": False,
+                        "computed": {},
+                        "errors": [{"line": 1, "code": "SCHEMA", "message": f"internal error: {exc}"}],
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            )
         else:
             print(f"ERROR {args.handoff.as_posix()}:1 [SCHEMA] internal error: {exc}", file=sys.stderr)
         return 2
     if args.as_json:
         print(json.dumps(report.as_json(), ensure_ascii=False, indent=2, sort_keys=True))
     elif report.ok:
-        mode = "ready" if args.ready else "valid"
-        print(f"OK {report.path.as_posix()} [{mode}]")
+        result_mode = "ready" if args.ready else "til-ready" if args.til_ready else "valid"
+        print(f"OK {report.path.as_posix()} [{result_mode}]")
     else:
         for error in report.errors:
             print(error.rendered(report.path), file=sys.stderr)

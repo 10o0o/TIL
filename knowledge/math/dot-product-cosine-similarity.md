@@ -103,5 +103,4 @@ dot_scores = candidates @ query
 
 - Knowledge: [벡터](./vector.md) · [벡터 L2 정규화](./vector-l2-normalization.md)
 - TIL: [2026-08-14](../../til/2026/08/2026-08-14.md)
-- Practice: [내적과 코사인 유사도: 크기 변화와 검색 순위](../../practice/math/dot-product-cosine-ranking.ipynb)
-- Source: [1장 2강: 내적과 코사인 유사도](../../materials/private/kant-basic-math/01-02_내적과_코사인_유사도.pdf)
+- Source: [1장 2강: 내적과 코사인 유사도](../../materials/private/kant-basic-math/01-02_내적과_코사인_유사도.md)

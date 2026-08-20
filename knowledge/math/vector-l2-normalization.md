@@ -65,5 +65,4 @@ $$
 
 - Knowledge: [벡터](./vector.md) · [NumPy axis, keepdims와 broadcasting](./numpy-axis-broadcasting.md)
 - TIL: [2026-08-13](../../til/2026/08/2026-08-13.md)
-- Practice: [벡터 정규화에서 axis와 keepdims 추론](../../practice/math/vector-normalization-axis.ipynb)
-- Source: [1장 1강: 벡터의 수학적 정의와 기하학적 해석](../../materials/private/kant-basic-math/01-01_벡터의_정의와_기하학적_해석.pdf)
+- Source: [1장 1강: 벡터의 수학적 정의와 기하학적 해석](../../materials/private/kant-basic-math/01-01_벡터의_정의와_기하학적_해석.md)

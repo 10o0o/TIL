@@ -13,6 +13,8 @@ python3 .agents/skills/coach-llm-research-study/scripts/validate_lesson_handoff.
   tmp/active-lesson-handoff.md
 python3 .agents/skills/coach-llm-research-study/scripts/validate_lesson_handoff.py \
   --ready tmp/active-lesson-handoff.md
+python3 .agents/skills/coach-llm-research-study/scripts/validate_lesson_handoff.py \
+  --til-ready tmp/active-lesson-handoff.md
 ```
 
 `--json` emits the same result as JSON, including computed hashes. The
@@ -32,11 +34,16 @@ validator never edits the handoff.
    status `blocked`; do not teach.
 5. A current `pass` permits status `active`. Run `--ready` before the first
    teaching chunk and again after resuming a paused lesson.
-6. Update Current Position and learner evidence without rewriting the reviewed
-   contract. These changes do not invalidate a current review.
-7. Set status `completed` only after the lesson is finished. The save workflow
+6. Update Current Position, learner evidence, and Daily Learning Coverage
+   without rewriting the reviewed contract. These changes do not invalidate a
+   current lesson-contract review.
+7. Before saving, inventory what was actually taught. Every confirmed concept
+   must be represented as learning, every unresolved taught concept as a
+   remaining question, and untouched content as deferred. Record the coach's
+   verdict and the exact draft hash, then run `--til-ready`.
+8. Set status `completed` only after the lesson is finished. The save workflow
    may remove a completed handoff only after every confirmed evidence item is
-   drafted and the dated TIL commit succeeds.
+   drafted, `--til-ready` passes, and the dated TIL commit succeeds.
 
 Resume an existing handoff only when the named primary input path and hash are
 unchanged. A source, curriculum, manifest, or lesson-contract change makes a
@@ -51,7 +58,7 @@ to discard learner content.
 
 Metadata is a Markdown bullet list with exactly these keys:
 
-- `schema_version`: currently `1`.
+- `schema_version`: currently `2`.
 - `lesson_id`: stable lowercase identifier matching
   `[a-z0-9][a-z0-9-]{2,63}`.
 - `title`: one non-empty line.
@@ -80,9 +87,9 @@ ID | Role | Path | SHA-256
 - Include every local figure or asset referenced by the source. A PDF is one
   input hashed as file bytes.
 - Never include `draft_path` (`til/today.md`) in the manifest. The draft,
-  Current Position, and Learner Evidence are mutable operational state outside
-  the reviewed input and contract hashes. The `til` role is only for a prior,
-  finalized dated TIL used as baseline evidence.
+  Current Position, Daily Learning Coverage, and Learner Evidence are mutable
+  operational state outside the reviewed input and contract hashes. The `til`
+  role is only for a prior, finalized dated TIL used as baseline evidence.
 - Paths are POSIX, repository-relative paths. Absolute paths, backslashes,
   `.` or `..` components, duplicate paths, non-files, and symlinks that resolve
   outside the repository are invalid.
@@ -189,6 +196,47 @@ enough to continue after context loss. `last_completed` is `none` or a Concept
 Path concept ID; `next_concept` is a Concept Path concept ID, except that a
 completed lesson uses `none`.
 
+## Daily Learning Coverage
+
+This section records today's taught scope, not the source's whole syllabus and
+not durable progress. It contains exactly these pre-save fields:
+
+- `pre_save_verdict`: `pending`, `저장 가능`, `수정 후 저장`, or
+  `추가 확인 후 저장`;
+- `reviewed_at`: `pending` or an RFC 3339 timestamp;
+- `reviewed_draft_sha256`: `pending` or SHA-256 of the exact current
+  `til/today.md` bytes.
+
+Follow them with exactly one ordered row per Concept Path concept:
+
+```markdown
+| Concept ID | Today state | Evidence IDs | TIL representation | Note |
+| --- | --- | --- | --- | --- |
+| C01 | confirmed | E001 | learning | The learner explanation is in today's learning. |
+| C02 | uncertain | E002 | remaining-question | draft-anchor: 왜 오른쪽 축부터 비교하는가? |
+| C03 | deferred | none | not-required | This concept was not taught today. |
+```
+
+`Today state` is `confirmed`, `uncertain`, or `deferred`.
+`TIL representation` is `learning`, `remaining-question`, `missing`, or
+`not-required`. A confirmed row needs at least one matching confirmed learner
+evidence ID and uses `learning` only after that evidence is drafted. An
+uncertain row uses `remaining-question`; it may cite partial or misconception
+evidence when available. Its Note must be `draft-anchor: <exact excerpt>`, where
+the non-empty excerpt occurs verbatim under the reviewed draft's `## 남은 질문`
+section. This gives `--til-ready` a mechanical representation check without
+pretending to judge the question's semantics. A deferred row has `none`
+evidence and `not-required`. Do not classify an untouched source concept as
+missing.
+
+The coach compares Concept Path, Current Position, learner evidence, the
+actual learning conversation, explicitly named self-study scope, and the draft.
+Tutor prose does not satisfy a confirmed row. After corrections, set the exact
+review timestamp, hash the current draft bytes, and record `저장 가능` only
+when every non-deferred concept is represented. Any later draft edit makes the
+review stale. `--til-ready` verifies this operational contract in addition to
+requiring a current independent lesson-contract pass.
+
 ## Learner Evidence
 
 Each evidence block has a contiguous ID such as `E001` and these fields:
@@ -270,4 +318,4 @@ ERROR path:line [CODE] message
 
 Codes are `SCHEMA`, `PATH`, `SOURCE_MISSING`, `SOURCE_HASH`, `CONTRACT_HASH`,
 `REVIEW_STALE`, `REVIEW_NOT_PASS`, `EVIDENCE_STATE`, `DRAFT_MARKER`, and
-`DRAFT_CONTENT`.
+`DRAFT_CONTENT`, `TIL_COVERAGE`, and `TIL_REVIEW_STALE`.

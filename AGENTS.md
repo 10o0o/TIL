@@ -22,15 +22,20 @@ The normal flow is:
 register source material -> audit it against CURRICULUM.md
 -> prepare and independently review one temporary lesson handoff
 -> teach at the learner's level -> append only confirmed learner answers to til/today.md
--> review the draft against its sources
+-> review the draft for every core concept actually studied today
 -> resolve or mark important uncertainty -> finalize a dated TIL
--> pass that exact TIL to the practice coach -> create one adaptive workbook only when useful
--> run and interpret the workbook when one was created
+-> map that exact TIL's major outcomes to practice actions
+-> implement core logic from scratch in a small authentic workbook or project bundle
+-> run tests, diagnose failures, and interpret the resulting state
 -> update only understanding supported by learner-authored evidence
 -> optionally deepen a knowledge concept and update the same note only after new evidence
 ```
 
-"No extra practice" and "no knowledge change" are valid outcomes. No daily streak, promotion status, separate review log, progress table, or canonical-note gate is required.
+"No extra practice" is valid only when equivalent implementation, execution,
+and interpretation evidence already covers the TIL outcomes or there is no
+practice-capable outcome. "No knowledge change" remains valid. No daily streak,
+promotion status, separate review log, progress table, or canonical-note gate
+is required.
 
 ## Working rules
 
@@ -39,13 +44,14 @@ register source material -> audit it against CURRICULUM.md
 - Treat review and explanation requests as read-only unless the user asks for edits.
 - Use `apply_patch` for text edits.
 - Use `tmp/active-lesson-handoff.md` as the only resumable interactive-lesson cache. It is ignored operational state, not a durable review, progress, or learner-evidence document.
+- Keep its `Daily Learning Coverage` as mutable operational state: confirmed and uncertain concepts actually studied today must be represented in the exact reviewed draft, while deferred concepts are not required. A handoff-backed save requires `validate_lesson_handoff.py --til-ready` against the current draft hash.
 - Do not replace a completed handoff with a new lesson until every confirmed learner-evidence item is drafted. Remove it only after the dated TIL commit succeeds.
 - During a multi-source curriculum audit, `tmp/curriculum-audit/` may hold disposable per-source recovery notes. Delete them after reviewed findings are integrated into `CURRICULUM.md`; they are not learner evidence or progress records.
 - Do not relocate, delete, or rewrite existing `archive/` notes in bulk.
 - Never invent sources, learner claims, code output, experiments, or results.
 - Verify current recommendations such as Kaggle competitions, libraries, models, and tools.
 - Register private course PDFs under `materials/private/<course>/` with a stable lesson-prefixed filename such as `NN-NN_title.pdf`; verify that the whole file is readable and update that course's local `INDEX.md` when one exists.
-- Store instructor-provided practice under `materials/private/<course>/course-provided-practice/`; it is source material and must not be mixed with learner or agent-generated work under top-level `practice/`.
+- Store instructor-provided practice under `materials/private/<course>/course-provided-practice/`; it is source material and must not be mixed with learner or agent-generated work under top-level `practice/`. Map every such file explicitly in that course `INDEX.md` with `Practice path`, `Related lesson path`, `Variant`, `Format`, and `Original`; never infer a relationship from numbering.
 - When normalizing a saved Notion HTML page for long-term use, write an expanded Markdown copy with a stable lesson-prefixed name. Preserve headings, toggle children, exact code indentation, output, tables, links, formulas, captions, and content images; discard browser UI assets only after the Markdown package passes a source-to-output integrity check.
 - When replacing a PDF with Markdown, preserve every page as a readable lossless page render alongside searchable extracted text. Delete the PDF only after page counts, image links, render dimensions, text extraction, and visual inspection all pass; keep the source whenever conversion is incomplete or questionable.
 
@@ -67,14 +73,18 @@ register source material -> audit it against CURRICULUM.md
 - For difficult topics, connect intuition, a small example, formulas and shapes, code, and actual ML/LLM use.
 - In user-facing tutoring and audit responses, treat inline LaTeX as unsupported. Use inline code for short symbols such as `q_i`, `d_k`, and `QK^T`; put typeset formulas in standalone `$$` blocks with blank lines around them and the delimiters on lines by themselves. Never put LaTeX in a heading, table, bullet label, or ordinary sentence, and scan for single-dollar math delimiters before sending.
 - Do not treat tutor-generated explanations as proof of learner knowledge. Update `knowledge/` only when explicitly requested and supported by the learner's own explanation, calculation, answer, or interpreted result.
-- Before finalizing a TIL, review the rough draft against the exact material studied, the current learning conversation, and only relevant existing knowledge. Distinguish factual errors, learner uncertainty, missing concepts essential to the stated understanding, optional enrichment, and tutor-supplied explanations.
-- Do not require a TIL to cover the whole lecture. Treat a concept as a blocking omission only when leaving it out makes the learner's written conclusion misleading or prevents the lesson's core idea from making sense.
+- Before finalizing a TIL, reconstruct today's actual learning scope from the handoff Concept Path and completed position, learner evidence, the current conversation, explicitly named self-study scope, and the draft. Distinguish factual errors, learner uncertainty, a core concept actually studied today but missing from the draft, optional enrichment, and tutor-supplied explanations.
+- Do not require untouched parts of the lecture. Require every core concept actually studied today to appear either as confirmed learning under `오늘의 학습` or `배운 점`, or as unresolved uncertainty under `남은 질문`. Deferred source content is not a TIL omission.
 - Give a pre-save verdict of `저장 가능`, `수정 후 저장`, or `추가 확인 후 저장`. Resolve one important misconception at a time with `$teach-course-material`; update the draft only after the learner demonstrates or explicitly confirms the corrected understanding. An unresolved point may instead remain clearly labeled as uncertainty.
 - Treat `$save-today-til` as a formatter and filer, not a factual reviewer. In the normal daily flow, run the pre-save review first. If the current conversation still has unresolved blocking findings, do not finalize them as factual claims unless the user explicitly chooses to preserve them as uncertainty.
 - After review, distinguish what the learner demonstrated from what the tutor merely corrected. Use only the former as evidence for practice and knowledge decisions.
 - Keep hands-on work separate from lesson evaluation. `$suggest-learning-practice` requires one explicitly named, validated `til/YYYY/MM/YYYY-MM-DD.md`; never infer the latest note or accept `til/today.md` or the legacy root draft. Follow its exact source links and stop rather than guessing when a source-based TIL has no resolvable material.
-- Invoking `$suggest-learning-practice` authorizes one unexecuted Notebook workbook by default when practice adds value, unless the user asks for a decision only. Choose Core, Applied, or Advanced from demonstrated understanding, use the smallest sufficient depth, and create no file when reteaching, more learner evidence, or no extra practice is the better outcome.
-- Build the workbook from `practice/template.ipynb` at `practice/<area>/<topic>.ipynb`. Link the exact TIL and its sources, explain why the task fits now, provide ordered instructions, starter code, progressive hints, completion criteria, and interpretation prompts. Do not overwrite learner work, include a full answer, invent output, execute the Notebook, or commit it unless separately asked.
+- Invoking `$suggest-learning-practice` with an exact finalized TIL authorizes one unexecuted artifact by default, or two to three coherent bundles only when independent questions require a split. Lack of implementation evidence calls for the smallest Core practice; it is not a reason to withhold practice.
+- Map every major TIL outcome to `implement`, `test`, `debug`, `interpret`, or `design`. For code-centered ML, DL, LLM, and systems topics, prefer `practice/<area>/<topic>/workbook.ipynb` plus learner-owned `src/` stubs and normal/edge/failure `tests/`; compact hand calculation and Shape tracing may stay in one Notebook.
+- Give each bundle exactly one unexecuted `# setup-check` cell before its TODOs. It must resolve that bundle's `src/` and import its public interface from a repository-root Notebook kernel; validate this without relying on pytest's injected `PYTHONPATH`.
+- Put folded progressive hints in the Markdown cell immediately beside each TODO, never in a global hint appendix. Provide signatures, deterministic fixtures, tests, and boilerplate, but leave core algorithms, Tensor operations, training order, validation, and interpretation to the learner from scratch. Do not overwrite learner work, include a complete answer, invent output, execute the Notebook, or commit it unless separately asked.
+- Before reporting generated practice as ready, validate it and obtain a pass from a fresh read-only reviewer. Permit one revision and one second reviewer only. If review is unavailable or the second review does not pass, do not deliver it as ready.
+- When `$suggest-learning-practice` is given an exact practice path for feedback, inspect the saved code and actual traceback or test output, address one blocker at a time, and require state/output interpretation even after tests pass. Do not complete learner-owned core logic without explicit authorization.
 - Use Kaggle only when data handling, validation, metrics, or error analysis is the point; use local code or benchmarks for mechanics and systems topics. Verify any current recommendation.
 - When a user requests the full daily flow, coordinate the separate skills in the order above; do not merge their responsibilities into a new orchestration skill.
 - For an interactive named-source lesson using both coaching and teaching, `$coach-llm-research-study` owns the source audit, lesson contract, and fresh semantic review; `$teach-course-material` may start only after the handoff validator reports ready. Allow at most two total semantic-review attempts. If a fresh reviewer is unavailable or the second attempt does not pass, keep the handoff blocked and do not teach from that contract.
@@ -89,8 +99,7 @@ register source material -> audit it against CURRICULUM.md
 - Treat `til/today.md` as a local inbox, not a knowledge artifact. Reset it only after `$save-today-til` has written, validated, and committed the destination. Keep it ignored and untracked.
 - Treat `knowledge/` as the learner's current state of knowledge. Use one date-free file per reusable concept and revise outdated understanding in place.
 - Synthesize at most a few durable ideas into knowledge notes rather than copying an entire TIL. Not every TIL needs a corresponding knowledge note, and an explicit zero-change result is acceptable.
-- Short code may stay in a TIL; use `.ipynb` as the primary artifact for generated practice workbooks.
-- Use `.py` instead when repeatable execution, modularization, training jobs, or accurate systems benchmarking matters.
+- Short code may stay in a TIL. Use `.ipynb` alone for compact calculation or Shape tracing; use a Notebook-led `src/` and `tests/` bundle when implementation boundaries, testing, training jobs, or systems behavior matter.
 - Record only observed results from code that actually ran.
 - Keep datasets, model weights, credentials, and large generated files out of Git unless explicitly authorized and appropriate.
 - Treat PDFs as sources, not public notes. Include toggle children, figures, code, tables, and formulas when exporting Notion pages.

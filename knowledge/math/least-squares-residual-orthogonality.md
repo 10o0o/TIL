@@ -79,5 +79,4 @@ A.T @ r    = [0]
 
 - Knowledge: [Rank, 영공간과 연립방정식의 해](./rank-null-space-linear-systems.md)
 - TIL: [2026-08-18](../../til/2026/08/2026-08-18.md)
-- Practice: [선형 변환, rank, 연립방정식](../../practice/math/linear-transform-rank-systems.ipynb)
 - Source: [연립선형방정식과 행렬 해법](../../materials/private/kant-basic-math/02-03_연립선형방정식과_행렬_해법.md)

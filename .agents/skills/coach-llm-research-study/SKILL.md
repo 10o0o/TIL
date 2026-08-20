@@ -1,6 +1,6 @@
 ---
 name: coach-llm-research-study
-description: Audit AI, machine learning, deep learning, LLM, or mathematics lecture materials and assess the learner's demonstrated understanding, including reviewing til/today.md before it is finalized as a TIL. Use for source and curriculum-coverage audits, pre-save TIL validation, lecture PDF review, finalized TIL feedback, knowledge-note accuracy review, or questions about misconceptions, missing prerequisites, notation, inaccurate claims, misleading simplifications, and high-leverage concepts for an LLM Research Engineer. When invoked with $teach-course-material for an interactive named-source lesson, prepare and independently review its temporary lesson contract before teaching. Do not use to deliver the lesson, organize TIL files, write the knowledge base, or recommend practice.
+description: Audit AI, machine learning, deep learning, LLM, or mathematics lecture materials and assess the learner's demonstrated understanding, including whether til/today.md accurately and completely represents every core concept actually studied today before finalization. Use for source and curriculum-coverage audits, pre-save TIL completeness and factual validation, lecture PDF review, finalized TIL feedback, knowledge-note accuracy review, or questions about misconceptions, missing prerequisites, notation, inaccurate claims, misleading simplifications, and high-leverage concepts for an LLM Research Engineer. When invoked with $teach-course-material for an interactive named-source lesson, prepare and independently review its temporary lesson contract before teaching. Do not use to deliver the lesson, organize TIL files, write the knowledge base, or recommend practice.
 ---
 
 # Evaluate LLM Research Study
@@ -115,24 +115,38 @@ Keep this distinction explicit so a later practice or knowledge decision does no
 
 When the user asks to validate `til/today.md` or another rough note before saving:
 
-1. Resolve the exact draft and the material studied from the user's request, source links in the draft, and the current learning conversation. Ask only when different possible sources would materially change the review.
-2. Read the complete relevant source, the draft, the relevant learning exchange, and only directly related `knowledge/` or executed `practice/` evidence.
-3. Compare the learner's claims with the source and established facts. Do not assume the source itself is correct; apply the material audit rules when needed.
-4. Classify findings as:
+1. Resolve the exact draft and reconstruct **today's actual learning scope** in this order: the active handoff's Concept Path plus Current Position; confirmed learner answers, calculations, Shape predictions, and code interpretations; the current learning conversation; an explicitly stated self-study scope with exact source paths; then the draft itself. The source table of contents does not prove that every item was studied. If the actual scope cannot be recovered, do not guess; give `추가 확인 후 저장` and ask the smallest scope question.
+2. Read the complete relevant source, the draft, the relevant learning exchange, and only directly related `knowledge/` or executed `practice/` evidence. Reading the whole source is for factual checking, not for expanding today's required scope.
+3. Build a temporary concept inventory. For a handoff-backed lesson, update `Daily Learning Coverage` with every Concept Path item as `confirmed`, `uncertain`, or `deferred`. An uncertain row must record `draft-anchor: <exact excerpt>` pointing into a non-empty `## 남은 질문` section so the mechanical gate cannot pass on metadata alone. For self-study without a handoff, hold the same inventory only in working context; do not create another durable review document.
+4. Require every core concept actually studied today to appear in one of two honest forms: confirmed understanding under `오늘의 학습` or `배운 점`, and unresolved understanding under `남은 질문`. A deferred source concept is not required. Compare the learner's claims with the source and established facts; do not assume the source itself is correct.
+5. Classify findings as:
    - **반드시 수정**: factually wrong or misleading as currently stated;
    - **헷갈림·불확실**: contradictory, ambiguous, or asserted more confidently than the learner evidence supports;
-   - **빠진 필수 개념**: an omission that makes a written conclusion misleading or blocks the lesson's core idea;
+   - **빠진 오늘의 핵심**: a core concept actually studied today that is absent both as learning and as uncertainty;
    - **선택 보강**: useful context that is not required for this TIL and must not block saving;
    - **확인된 이해**: accurate understanding demonstrated in the learner's own words.
-5. Do not treat every unmentioned lecture point as a missing concept. A TIL is a selective learning record, not a complete lecture summary.
-6. Give exactly one readiness verdict:
+6. Do not require untouched parts of the lecture, but do require all core content actually studied today. A TIL is not a transcript or whole-source summary; it is a complete record of today's real learning boundary.
+7. Give exactly one readiness verdict:
    - **저장 가능**: no unresolved factual or core-understanding blocker;
    - **수정 후 저장**: the needed correction is clear and can be reflected after learner confirmation;
    - **추가 확인 후 저장**: one or more statements require a diagnostic answer or further teaching before they can be stated as understood.
 
 For each blocking finding, quote only the shortest identifying draft fragment, cite the relevant source location, explain the issue, and identify the smallest next action. Present all high-priority findings concisely, then resolve them one at a time when interaction is needed.
 
-Do not silently rewrite a misconception into the correct answer. Use `$teach-course-material` when more than a direct factual correction is needed, and ask the learner to explain back the decisive idea. Edit the draft only when the user asks and either demonstrates the corrected understanding or explicitly chooses to record the point as unresolved uncertainty. Re-read the resulting draft and give the verdict again before handing off to `$save-today-til`.
+Do not silently rewrite a misconception or missing concept into a correct tutor answer. Ask one small confirmation question, preserve the learner's own answer when confirmed, and leave unresolved content as the learner's uncertainty. Use `$teach-course-material` when more than a direct factual correction is needed. Edit the draft only when the user asks and either demonstrates the corrected understanding or explicitly chooses to record the point as unresolved uncertainty.
+
+For a handoff-backed draft, after re-reading the final draft:
+
+1. update every Daily Learning Coverage row and its evidence IDs;
+2. set `pre_save_verdict`, `reviewed_at`, and the SHA-256 of the exact current draft bytes;
+3. require this check before handing off to `$save-today-til`:
+
+   ```bash
+   python3 .agents/skills/coach-llm-research-study/scripts/validate_lesson_handoff.py \
+     --til-ready tmp/active-lesson-handoff.md
+   ```
+
+Any draft edit after that hash is recorded invalidates the verdict and requires a new coach review. A semantic lesson-contract pass is necessary but does not establish TIL completeness.
 
 ## Explain findings enough to act on
 

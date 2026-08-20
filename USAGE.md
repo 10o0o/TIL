@@ -24,7 +24,7 @@ VS Code에서 Notebook을 실행할 때는 `/home/jake/llm-research-learning-lab
 |---|---|---|
 | `til/` | 오늘 무엇을 배우고 어떻게 생각했는지 | 날짜별 기록, 과거의 흔적 |
 | `knowledge/` | 지금 내가 그 개념을 어떻게 이해하는지 | 주제별 문서, 계속 갱신 |
-| `practice/` | 직접 실행한 코드, 출력, 그래프와 해석 | Notebook 중심의 증거 |
+| `practice/` | 직접 실행한 코드, 테스트, 출력과 해석 | Notebook이 안내하는 실행 증거 |
 
 [`ROADMAP.md`](./ROADMAP.md)는 큰 학습 방향을, [`CURRICULUM.md`](./CURRICULUM.md)는 역량별 목표 깊이·선수 관계·현재 강의자료의 충족도와 보완 기준을 담습니다. 둘 다 개인 진도율이나 점수를 기록하는 문서는 아닙니다.
 
@@ -35,15 +35,15 @@ VS Code에서 Notebook을 실행할 때는 `/home/jake/llm-research-learning-lab
 3. `$coach-llm-research-study`와 `$teach-course-material`로 자료를 감사하고 `CURRICULUM.md`의 관련 역량·공백을 확인합니다.
 4. 수업 계약이 fresh reviewer의 검토를 통과하면 개념 단위로 학습하고, 질문·계산·자기 설명을 통해 이해를 확인합니다.
 5. 형식 없는 메모는 `til/today.md`에 직접 쓰고, 대화형 수업에서 확인된 자신의 답변은 같은 파일에 자동으로 누적합니다.
-6. `$coach-llm-research-study`로 `til/today.md`를 오늘 본 자료와 비교해 저장 전에 검토합니다.
+6. `$coach-llm-research-study`로 오늘 실제로 다룬 핵심이 이해 또는 불확실성의 형태로 `til/today.md`에 모두 있는지 검토합니다.
 7. 오개념이나 확인이 필요한 표현이 있으면 `$teach-course-material`로 다시 학습하고, 직접 다시 설명한 답변 중 확인된 것만 초안에 반영합니다.
 8. `저장 가능` 판정을 받으면 `$save-today-til`로 날짜별 TIL을 저장하고 그 날짜별 TIL만 자동 커밋합니다.
-9. 저장된 날짜별 TIL의 정확한 경로를 `$suggest-learning-practice`에 전달하고, 강의 제공 실습을 바탕으로 다듬고 싶다면 그 파일도 정확히 지정합니다. 스킬은 강의자료 링크와 이해 증거를 확인해 필요할 때만 Notebook 워크북 하나를 만듭니다.
-10. 워크북이 만들어졌다면 직접 실행하고 결과를 해석합니다. 재학습 또는 추가 실습 없음 판정이면 이 단계를 건너뜁니다.
+9. 저장된 날짜별 TIL의 정확한 경로를 `$suggest-learning-practice`에 전달합니다. 스킬은 TIL의 주요 학습 성과 전체를 실습 action으로 매핑하고, 강의 INDEX에 정확히 연결된 제공 실습만 자동으로 참고해 Notebook 또는 작은 현업형 bundle을 만듭니다.
+10. 핵심 로직을 직접 구현하고 normal·edge·failure test를 실행합니다. 실패 원인을 한 단계씩 진단하고, 통과 뒤에도 출력과 상태 변화를 해석합니다.
 11. `$update-learning-knowledge`로 실제로 이해했다고 확인된 내용만 `knowledge/`에 반영합니다.
 12. 새 지식 문서를 더 깊게 공부하고 싶다면 그 문서를 대상으로 다시 질문하고, 새 이해가 확인된 경우 같은 문서만 갱신합니다.
 
-실습이 필요 없거나 새로 반영할 지식이 없다는 결론도 정상입니다. 영구 중복 강의록이나 학습자 진도표는 만들지 않으며, `tmp/active-lesson-handoff.md`는 확인된 학습자 답변이 모두 초안에 반영되고 날짜별 TIL 커밋이 성공한 후에만 제거하는 임시 운영 캐시입니다.
+동등한 구현·실행·해석 증거가 이미 있으면 추가 실습 없음도 가능하고, 새로 반영할 지식이 없다는 결론도 정상입니다. 영구 중복 강의록이나 학습자 진도표는 만들지 않으며, `tmp/active-lesson-handoff.md`는 확인된 학습자 답변과 오늘 학습한 범위가 초안에 모두 반영되고 날짜별 TIL 커밋이 성공한 후에만 제거하는 임시 운영 캐시입니다.
 
 ## 강의자료 등록
 
@@ -74,7 +74,7 @@ til/2026/09/2026-09-01.md
 - 직접 계산하거나 실행해본 결과
 - 다음에 이어서 보고 싶은 것
 
-다 쓴 뒤 바로 저장하지 않고, 평가 코치가 실제로 본 강의자료와 학습 대화를 기준으로 초안을 먼저 검토합니다. TIL에 강의 전체를 담을 필요는 없습니다. 현재 설명을 잘못 이해하게 만드는 핵심 누락만 확인하고, 단순히 언급하지 않은 내용이나 선택 심화는 저장을 막지 않습니다.
+다 쓴 뒤 바로 저장하지 않고, 평가 코치가 handoff의 Concept Path와 완료 지점, 확인된 학습자 답변, 실제 학습 대화, 명시한 자율학습 범위를 기준으로 초안을 먼저 검토합니다. 원자료 전체를 요약할 필요는 없지만 **오늘 실제로 다룬 핵심은 모두** 남겨야 합니다. 이해가 확인됐으면 `오늘의 학습`이나 `배운 점`에, 아직 불확실하면 `남은 질문`에 적습니다. 오늘 다루지 않은 원자료 내용은 `deferred`이며 누락이 아닙니다.
 
 검토를 마치면 [`til/template.md`](./til/template.md)의 순서에 맞게 저장됩니다. `오늘의 학습`은 항상 남기고, 나머지 항목은 실제 내용이 있을 때만 남깁니다. 라이브 수업과 GPT 보충 학습을 구분해서 썼다면 `오늘의 학습` 안에서 그 구분을 유지합니다.
 
@@ -98,17 +98,30 @@ knowledge/llm/attention.md
 
 ## 실습 저장
 
-코드, 출력, 그래프와 설명이 길어질 때는 `.ipynb`로 저장합니다.
+손계산과 Shape 추적은 단일 `.ipynb`로 저장할 수 있습니다. 핵심 코드를 직접 구현하고 계약을 테스트하는 ML·DL·LLM 실습은 Notebook이 안내하고 `src/`와 `tests/`가 실행 경계를 제공하는 bundle을 기본으로 합니다.
 
 ```text
 practice/math/vector-normalization.ipynb
-practice/ml/kaggle-titanic.ipynb
-practice/llm/attention-score.ipynb
+practice/deep-learning-basics/training-loop/
+├── workbook.ipynb
+├── src/training_loop/core.py
+└── tests/test_core.py
 ```
 
-[`practice/template.ipynb`](./practice/template.ipynb)는 적응형 워크북의 기본 구조입니다. 반복 실행, 모듈화 또는 정확한 성능 측정이 중요한 training·systems 작업은 보조 `.py` 파일을 둘 수 있지만, 학습 흐름의 중심은 Notebook으로 유지합니다. 관련 날짜별 TIL과 강의자료는 Notebook 상단에 링크합니다.
+[`practice/template.ipynb`](./practice/template.ipynb)는 단일 워크북의 기본 구조입니다. 코드 중심 실습은 같은 구조의 `workbook.ipynb`와 public signature만 있는 `src/`, normal·edge·failure 계약을 보여주는 `tests/`를 함께 둡니다. 관련 날짜별 TIL과 강의자료는 Notebook 상단에 정확히 링크합니다.
 
-워크북에는 현재 이해에서 왜 이 실습이 필요한지, 실행 전 예상, 단계별 지시와 시작 코드, 막혔을 때의 힌트, 완료 기준, 결과 해석과 자기 설명을 넣습니다. 난이도는 `Core`, `Applied`, `Advanced` 중 하나이며, 기반 이해가 충분하고 실제 학습 가치가 있을 때는 ablation·민감도·실패 사례 분석까지 포함한 `Advanced`를 선택할 수 있습니다.
+Bundle의 첫 `# setup-check` 셀은 저장소 루트에서 해당 `src/` 경로를 추가하고 public interface를 import합니다. 이 셀은 pytest용 `PYTHONPATH` 없이도 실행돼야 하므로 Notebook을 열자마자 import 오류가 나는 문제를 validator가 따로 잡습니다.
+
+워크북은 TIL의 주요 성과를 `implement`, `test`, `debug`, `interpret`, `design`에 연결한 Practice Coverage Map을 가집니다. 각 exercise는 실제 사용 맥락, 실행 전 회상·예측, 작은 계약, 직접 구현, 바로 옆의 접힌 힌트, 테스트와 실패 진단, 결과 해석 순서입니다. 전역 힌트 절은 만들지 않습니다. 난이도는 `Core`, `Applied`, `Advanced` 중 하나이며, 설명을 잘했더라도 구현 증거가 없으면 작은 Core부터 시작합니다.
+
+bundle 테스트는 다음처럼 실행합니다.
+
+```bash
+PYTHONPATH=practice/<area>/<topic>/src \
+  uv run pytest practice/<area>/<topic>/tests
+```
+
+처음에는 learner function이 `NotImplementedError`라서 실패하는 것이 정상입니다. import나 test collection 자체가 실패하면 워크북 결함입니다.
 
 실행하지 않은 결과는 기록하지 않고, 데이터셋·모델 가중치·API 키·큰 출력 파일은 Git에 올리지 않습니다. Notebook 출력도 결과를 이해하는 데 필요한 것만 남깁니다.
 
@@ -148,7 +161,8 @@ knowledge/math/vector.md에서 내가 이해한 범위를 먼저 확인하고,
 - 정확하게 설명한 내용
 - 저장 전에 반드시 고쳐야 할 잘못된 개념
 - 아직 확실한 사실처럼 쓰면 안 되는 혼동과 불확실성
-- 현재 결론을 오해하게 만드는 필수 개념 누락
+- 오늘 실제로 다뤘지만 이해나 불확실성 어느 쪽에도 적히지 않은 핵심
+- 오늘 배우지 않아 TIL에 없어도 되는 deferred 내용
 - TIL에 넣지 않아도 되는 선택 보강 내용
 - GPT가 설명했지만 아직 내가 다시 설명하지 않은 내용
 
@@ -171,7 +185,7 @@ $teach-course-material을 사용해
 내가 다시 설명해서 이해가 확인되면 내 답변만 til/today.md에 반영해줘.
 ```
 
-평가 코치는 오개념을 정답 문장으로 몰래 바꾸지 않습니다. 해결되지 않은 부분은 `남은 질문`이나 불확실성으로 명시할 수 있습니다. 모든 강의 내용을 빠짐없이 추가하는 것도 목표가 아닙니다.
+평가 코치는 오개념이나 빠진 내용을 정답 문장으로 몰래 바꾸지 않습니다. 작은 확인 질문에 내가 다시 설명한 내용만 학습으로 반영하고, 해결되지 않은 부분은 `남은 질문`에 둡니다. 모든 강의 내용을 추가하는 것이 아니라 오늘 실제로 학습한 핵심의 경계를 빠짐없이 기록하는 것이 목표입니다. Handoff 기반 수업은 최종 draft hash와 coverage를 `--til-ready`로 확인합니다.
 
 ### 3. 오늘의 TIL 저장
 
@@ -191,28 +205,40 @@ $save-today-til을 사용해 rough.md를 2026-08-13 TIL로 저장해줘.
 
 나중에 새로운 오류를 발견했거나 자료가 바뀌었다면 완성된 TIL을 평가 코치로 다시 검토할 수 있지만, 매일 저장 후 같은 평가를 반복할 필요는 없습니다.
 
-### 4. 적응형 실습 워크북
+### 4. 현업형 실습 생성과 시도 피드백
 
-[`suggest-learning-practice`](./.agents/skills/suggest-learning-practice/SKILL.md)는 검토와 저장을 마친 날짜별 TIL 하나를 필수 입력으로 받습니다. 정확한 경로를 지정해야 하며, 스킬이 최신 TIL을 자동으로 고르거나 `til/today.md`를 대신 사용하지 않습니다. TIL의 `관련 기록`에 있는 강의자료를 따라가서 오늘 배운 내용과 이해 증거를 함께 확인합니다.
-
-```text
-$suggest-learning-practice를 사용해
-til/2026/08/2026-08-13.md를 기준으로 실습을 진행해줘.
-```
-
-강의에서 제공한 실습을 바탕으로 맞춤 워크북을 만들고 싶다면 `materials/private/<course>/course-provided-practice/` 아래의 정확한 파일 경로도 함께 지정합니다.
+[`suggest-learning-practice`](./.agents/skills/suggest-learning-practice/SKILL.md)의 생성 모드는 검토와 저장을 마친 날짜별 TIL 하나를 필수 입력으로 받습니다. 정확한 경로를 지정해야 하며, 최신 TIL이나 `til/today.md`를 추측하지 않습니다.
 
 ```text
 $suggest-learning-practice를 사용해
-til/YYYY/MM/YYYY-MM-DD.md를 기준으로 실습을 진행하고,
-materials/private/<course>/course-provided-practice/NN-NN_주제.md를 바탕으로 부족한 부분을 보완해줘.
+til/2026/08/2026-08-13.md의 주요 학습 성과 전체를 직접 구현하고
+테스트하는 실습으로 만들어줘.
 ```
 
-강의 제공 실습은 학습자가 이해했다는 증거가 아니라 선택적인 설계 초안으로 사용합니다. 스킬은 원본을 수정하지 않고 현재 TIL에서 확인된 이해와 공백에 맞춰 필요한 부분만 유지·다듬기·보충하며, 모범답안과 실행 결과를 그대로 복사하지 않습니다. 정확한 실습 파일을 지정하지 않았을 때는 같은 번호의 파일을 임의로 고르지 않습니다.
+스킬은 TIL의 정확한 강의 링크를 따라가고, 해당 과정 `INDEX.md`에서 `Related lesson path`가 그 강의와 일치하는 강의 제공 실습만 자동으로 읽습니다. 기본·심화가 모두 매핑돼 있으면 비교하되, 원본을 수정하거나 모범답안·대표 출력을 복사하지 않습니다. 차시 번호나 비슷한 파일명으로 매핑을 추측하지 않습니다.
 
-개념 오류가 있으면 재학습을 먼저 권하고 파일을 만들지 않습니다. 증거가 부족하면 확인 질문 하나를 먼저 냅니다. 이미 설명·적용·해석할 수 있어 추가 가치가 없다면 이유와 함께 실습 없음으로 끝냅니다.
+TIL이 올바르더라도 구현 경험이 없다면 **실습 생성**이 기본입니다. TIL의 주요 성과를 Practice Coverage Map에 넣고 `implement`, `test`, `debug`, `interpret`, `design` 중 하나 이상으로 연결합니다. 증거가 적으면 실습을 막는 대신 작은 `Core`부터 시작합니다. 이미 같은 성과를 구현·실행·해석한 동등한 증거가 있으면 기존 미완성 실습을 계속하거나 예외적으로 추가 실습 없이 끝낼 수 있습니다.
 
-실습이 도움이 된다고 판단하면 별도 확인 없이 `practice/<area>/<topic>.ipynb` 워크북 하나를 만듭니다. 현재 이해에 따라 `Core`, `Applied`, `Advanced` 중 충분한 난이도를 선택하며, 정답이나 가짜 실행 결과는 채우지 않습니다. Kaggle은 데이터 처리·검증·평가지표·오류 분석 자체가 학습 목표일 때만 고려하고, 데이터 다운로드나 대회 참여는 별도 요청 없이는 하지 않습니다.
+코드 중심 주제는 다음처럼 구성됩니다.
+
+```text
+practice/<area>/<topic>/
+├── workbook.ipynb
+├── src/<package>/<module>.py
+└── tests/test_<module>.py
+```
+
+함수 signature, deterministic fixture와 테스트는 제공하지만 핵심 로직은 `NotImplementedError`에서 내가 직접 시작합니다. 힌트는 각 TODO 바로 앞의 접힌 블록에 있고, `힌트 1`은 관찰 상태, `힌트 2`는 작은 trace나 Shape 흐름을 제공합니다. 생성물은 validator와 fresh reviewer를 통과해야 준비 완료로 전달됩니다.
+
+시도 중 막혔을 때는 날짜별 TIL 대신 정확한 실습 경로를 줍니다.
+
+```text
+$suggest-learning-practice를 사용해
+practice/<area>/<topic> 경로의 현재 코드와 pytest 실패를 보고
+첫 blocker만 힌트로 설명해줘.
+```
+
+이 모드에서는 저장된 코드와 실제 traceback을 기준으로 개념 힌트, 부분 trace, 최소 API 뼈대 순서로 돕습니다. 별도 요청 없이는 핵심 구현을 대신 완성하지 않으며, 테스트가 통과해도 parameter·gradient·Shape·metric 같은 결정적 상태 변화를 내가 설명해야 완료로 판단합니다.
 
 ### 5. 확인된 이해를 knowledge에 반영
 

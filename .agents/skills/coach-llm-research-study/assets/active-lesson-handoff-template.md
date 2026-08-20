@@ -5,7 +5,7 @@
 
 ## Metadata
 
-- schema_version: 1
+- schema_version: 2
 - lesson_id: replace-with-stable-lesson-id
 - title: Replace with lesson title
 - status: preparing
@@ -82,6 +82,21 @@ Replace with one observable lesson objective.
 - last_completed: none
 - next_concept: C01
 - next_question: Replace with the exact next question.
+
+## Daily Learning Coverage
+
+- pre_save_verdict: pending
+- reviewed_at: pending
+- reviewed_draft_sha256: pending
+
+> For an `uncertain` row, write `draft-anchor: <exact excerpt>` in `Note`.
+> The excerpt must occur under the reviewed draft's non-empty `## 남은 질문`.
+
+| Concept ID | Today state | Evidence IDs | TIL representation | Note |
+| --- | --- | --- | --- | --- |
+| C01 | deferred | none | not-required | Update after this concept is taught. |
+| C02 | deferred | none | not-required | Update after this concept is taught. |
+| C03 | deferred | none | not-required | Update after this concept is taught. |
 
 ## Learner Evidence
 
