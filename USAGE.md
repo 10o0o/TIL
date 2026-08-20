@@ -98,7 +98,7 @@ knowledge/llm/attention.md
 
 ## 실습 저장
 
-손계산과 Shape 추적은 단일 `.ipynb`로 저장할 수 있습니다. 핵심 코드를 직접 구현하고 계약을 테스트하는 ML·DL·LLM 실습은 Notebook이 안내하고 `src/`와 `tests/`가 실행 경계를 제공하는 bundle을 기본으로 합니다.
+기초 수학, 작은 deterministic NumPy 계산, 독립적인 Tensor·Shape 확인은 단일 `.ipynb`에 구현·fixture·검사·해석 셀을 나란히 둡니다. 재사용 API, 여러 모듈·클래스, 격리된 pytest·CI, 학습 파이프라인이나 systems 경계가 학습 성과에 포함될 때만 `src/`와 `tests/`가 있는 bundle을 사용합니다.
 
 ```text
 practice/math/vector-normalization.ipynb
@@ -108,7 +108,9 @@ practice/deep-learning-basics/training-loop/
 └── tests/test_core.py
 ```
 
-[`practice/template.ipynb`](./practice/template.ipynb)는 단일 워크북의 기본 구조입니다. 코드 중심 실습은 같은 구조의 `workbook.ipynb`와 public signature만 있는 `src/`, normal·edge·failure 계약을 보여주는 `tests/`를 함께 둡니다. 관련 날짜별 TIL과 강의자료는 Notebook 상단에 정확히 링크합니다.
+[`practice/template.ipynb`](./practice/template.ipynb)는 단일 워크북의 기본 구조입니다. Bundle이 필요한 실습은 `workbook.ipynb`와 public signature만 있는 `src/`, normal·edge·failure 계약을 보여주는 `tests/`를 함께 둡니다. 관련 날짜별 TIL과 강의자료는 Notebook 상단에 정확히 링크합니다.
+
+단일 Notebook에서는 setup을 한 번 실행한 뒤 현재 E번호의 구현 셀, fixture 셀, `check_e01()` 형식의 검사 셀을 순서대로 실행합니다. 함수 수정 뒤에는 현재 구현 셀부터 다시 실행합니다.
 
 Bundle의 첫 `# setup-check` 셀은 저장소 루트에서 해당 `src/` 경로를 추가하고 public interface를 import합니다. 이 셀은 pytest용 `PYTHONPATH` 없이도 실행돼야 하므로 Notebook을 열자마자 import 오류가 나는 문제를 validator가 따로 잡습니다.
 
@@ -219,7 +221,7 @@ til/2026/08/2026-08-13.md의 주요 학습 성과 전체를 직접 구현하고
 
 TIL이 올바르더라도 구현 경험이 없다면 **실습 생성**이 기본입니다. TIL의 주요 성과를 Practice Coverage Map에 넣고 `implement`, `test`, `debug`, `interpret`, `design` 중 하나 이상으로 연결합니다. 증거가 적으면 실습을 막는 대신 작은 `Core`부터 시작합니다. 이미 같은 성과를 구현·실행·해석한 동등한 증거가 있으면 기존 미완성 실습을 계속하거나 예외적으로 추가 실습 없이 끝낼 수 있습니다.
 
-코드 중심 주제는 다음처럼 구성됩니다.
+재사용 코드 경계나 격리된 테스트 자체가 학습 대상인 주제는 다음처럼 구성됩니다.
 
 ```text
 practice/<area>/<topic>/
@@ -234,7 +236,7 @@ practice/<area>/<topic>/
 
 ```text
 $suggest-learning-practice를 사용해
-practice/<area>/<topic> 경로의 현재 코드와 pytest 실패를 보고
+practice/<area>/<topic> 경로의 현재 코드와 check 또는 pytest 실패를 보고
 첫 blocker만 힌트로 설명해줘.
 ```
 

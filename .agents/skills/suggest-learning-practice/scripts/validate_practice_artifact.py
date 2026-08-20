@@ -223,7 +223,7 @@ def _validate_notebook_setup(
     repo: Path,
 ) -> list[Problem]:
     if len(setup_cells) != 1:
-        return [Problem(notebook, 1, "IMPORT_SETUP", "bundle workbook needs exactly one # setup-check code cell")]
+        return [Problem(notebook, 1, "IMPORT_SETUP", "practice Notebook needs exactly one # setup-check code cell")]
     cell_index, setup_code = setup_cells[0]
     if "TODO:" in setup_code:
         return [Problem(notebook, 1, "IMPORT_SETUP", "setup-check cell must not contain a learner TODO")]
@@ -249,6 +249,321 @@ def _validate_notebook_setup(
         summary = detail[-1] if detail else f"exit {result.returncode}"
         return [Problem(notebook, 1, "IMPORT_SETUP", f"setup-check cell {cell_index} failed from repository root: {summary}")]
     return []
+
+
+def _validate_notebook_only_ergonomics(
+    notebook: Path,
+    setup_cells: list[tuple[int, str]],
+) -> list[Problem]:
+    problems: list[Problem] = []
+    try:
+        payload = json.loads(notebook.read_text(encoding="utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return problems
+    cells = payload.get("cells", [])
+    if not isinstance(cells, list):
+        return problems
+
+    if len(setup_cells) == 1:
+        _, setup_code = setup_cells[0]
+        if re.search(
+            r"\b(?:refresh_core|run_exercise_tests)\s*\(|\bsys\.path\b|"
+            r"\bimportlib\.reload\b|\bsubprocess\b|PYTHONPATH",
+            setup_code,
+        ):
+            problems.append(
+                Problem(
+                    notebook,
+                    1,
+                    "NOTEBOOK_SETUP",
+                    "Notebook-only setup must not contain bundle path, reload, subprocess, or pytest helpers",
+                )
+            )
+        if re.search(r"\bglobals\s*\(", setup_code):
+            problems.append(
+                Problem(
+                    notebook,
+                    1,
+                    "DYNAMIC_GLOBALS",
+                    "Notebook setup must not create learner callables through globals()",
+                )
+            )
+
+    todo_cells: dict[str, list[tuple[int, str]]] = {}
+    fixture_cells: dict[str, list[tuple[int, str]]] = {}
+    test_cells: dict[str, list[tuple[int, str]]] = {}
+    for index, cell in enumerate(cells):
+        if not isinstance(cell, dict) or cell.get("cell_type") != "code":
+            continue
+        text = _cell_text(cell)
+        for exercise_id in re.findall(r"^# TODO:\s*(E\d{2})\s*$", text, re.MULTILINE):
+            todo_cells.setdefault(exercise_id, []).append((index, text))
+        for exercise_id in re.findall(
+            r"^# provided-fixture:\s*(E\d{2})\s*$", text, re.MULTILINE
+        ):
+            fixture_cells.setdefault(exercise_id, []).append((index, text))
+        for exercise_id in re.findall(
+            r"^# test-check:\s*(E\d{2})\s*$", text, re.MULTILINE
+        ):
+            test_cells.setdefault(exercise_id, []).append((index, text))
+
+    exercise_ids = sorted(set(todo_cells) | set(fixture_cells) | set(test_cells))
+    for exercise_id in exercise_ids:
+        todos = todo_cells.get(exercise_id, [])
+        fixtures = fixture_cells.get(exercise_id, [])
+        tests = test_cells.get(exercise_id, [])
+        if len(todos) != 1:
+            problems.append(
+                Problem(
+                    notebook,
+                    1,
+                    "NOTEBOOK_IMPLEMENTATION",
+                    f"{exercise_id} needs exactly one # TODO implementation cell",
+                )
+            )
+        if len(fixtures) != 1:
+            problems.append(
+                Problem(
+                    notebook,
+                    1,
+                    "EXERCISE_FIXTURE",
+                    f"{exercise_id} needs exactly one separate # provided-fixture cell",
+                )
+            )
+        if len(tests) != 1:
+            problems.append(
+                Problem(
+                    notebook,
+                    1,
+                    "EXERCISE_TEST",
+                    f"{exercise_id} needs exactly one # test-check cell",
+                )
+            )
+
+        if len(todos) == len(fixtures) == len(tests) == 1:
+            todo_index, todo_code = todos[0]
+            fixture_index, _ = fixtures[0]
+            test_index, test_code = tests[0]
+            if not todo_index < fixture_index < test_index:
+                problems.append(
+                    Problem(
+                        notebook,
+                        1,
+                        "EXERCISE_ORDER",
+                        f"{exercise_id} cells must be ordered TODO, provided-fixture, test-check",
+                    )
+                )
+
+            try:
+                tree = ast.parse(todo_code)
+            except SyntaxError:
+                tree = None
+            if tree is not None:
+                public_functions = _public_functions(tree)
+                for function in public_functions:
+                    if not _is_stub(function):
+                        problems.append(
+                            Problem(
+                                notebook,
+                                function.lineno,
+                                "PREFILLED_CORE",
+                                f"public learner function must remain a NotImplementedError stub: {function.name}",
+                            )
+                        )
+
+            check_name = f"check_{exercise_id.lower()}"
+            if not re.search(rf"^def {check_name}\s*\(", test_code, re.MULTILINE):
+                problems.append(
+                    Problem(
+                        notebook,
+                        1,
+                        "EXERCISE_TEST",
+                        f"{exercise_id} test-check must define {check_name}()",
+                    )
+                )
+            if len(re.findall(rf"\b{check_name}\s*\(\s*\)", test_code)) < 2:
+                problems.append(
+                    Problem(
+                        notebook,
+                        1,
+                        "EXERCISE_TEST",
+                        f"{exercise_id} test-check must call {check_name}()",
+                    )
+                )
+            for category in ("normal", "edge", "failure"):
+                if not re.search(rf"^\s*# {category}\s*$", test_code, re.MULTILINE):
+                    problems.append(
+                        Problem(
+                            notebook,
+                            1,
+                            "TEST_CONTRACT",
+                            f"{exercise_id} test-check needs a # {category} case",
+                        )
+                    )
+            try:
+                test_tree = ast.parse(test_code)
+            except SyntaxError:
+                test_tree = None
+            if (
+                test_tree is not None
+                and any(isinstance(node, ast.Assert) for node in ast.walk(test_tree))
+            ) or re.search(r"\bpytest\b", test_code):
+                problems.append(
+                    Problem(
+                        notebook,
+                        1,
+                        "TEST_CONTRACT",
+                        f"{exercise_id} Notebook-local checks must use numpy.testing, not plain assert or pytest",
+                    )
+                )
+            elif "np.testing." not in test_code:
+                problems.append(
+                    Problem(
+                        notebook,
+                        1,
+                        "TEST_CONTRACT",
+                        f"{exercise_id} test-check needs observable numpy.testing assertions",
+                    )
+                )
+
+    return problems
+
+
+def _validate_bundle_notebook_ergonomics(
+    notebook: Path,
+    setup_cells: list[tuple[int, str]],
+) -> list[Problem]:
+    problems: list[Problem] = []
+    try:
+        payload = json.loads(notebook.read_text(encoding="utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return problems
+    cells = payload.get("cells", [])
+    if not isinstance(cells, list):
+        return problems
+
+    if len(setup_cells) == 1:
+        _, setup_code = setup_cells[0]
+        if re.search(r"\bglobals\s*\(", setup_code):
+            problems.append(
+                Problem(
+                    notebook,
+                    1,
+                    "DYNAMIC_GLOBALS",
+                    "bundle setup must use an explicit module alias instead of globals()",
+                )
+            )
+        if not re.search(r"^def refresh_core\s*\(", setup_code, re.MULTILINE):
+            problems.append(
+                Problem(notebook, 1, "BUNDLE_REFRESH", "setup-check must define refresh_core()")
+            )
+        if not re.search(r"^def run_exercise_tests\s*\(", setup_code, re.MULTILINE):
+            problems.append(
+                Problem(
+                    notebook,
+                    1,
+                    "EXERCISE_TEST",
+                    "setup-check must define run_exercise_tests(exercise_id)",
+                )
+            )
+
+    todo_cells: dict[str, list[tuple[int, str]]] = {}
+    test_cells: dict[str, list[tuple[int, str]]] = {}
+    for index, cell in enumerate(cells):
+        if not isinstance(cell, dict) or cell.get("cell_type") != "code":
+            continue
+        text = _cell_text(cell)
+        for exercise_id in re.findall(r"TODO:\s*(E\d{2})", text):
+            todo_cells.setdefault(exercise_id, []).append((index, text))
+        for exercise_id in re.findall(
+            r"^# test-check:\s*(E\d{2})\s*$", text, re.MULTILINE
+        ):
+            test_cells.setdefault(exercise_id, []).append((index, text))
+
+    for exercise_id, matches in sorted(todo_cells.items()):
+        if len(matches) != 1:
+            problems.append(
+                Problem(
+                    notebook,
+                    1,
+                    "EXERCISE_FIXTURE",
+                    f"{exercise_id} needs exactly one learner TODO cell",
+                )
+            )
+            continue
+        _, todo_code = matches[0]
+        fixture_marker = rf"^# provided-fixture:\s*{re.escape(exercise_id)}\s*$"
+        if not re.search(fixture_marker, todo_code, re.MULTILINE):
+            problems.append(
+                Problem(
+                    notebook,
+                    1,
+                    "EXERCISE_FIXTURE",
+                    f"{exercise_id} TODO must include # provided-fixture: {exercise_id}",
+                )
+            )
+        if not re.search(r"\brefresh_core\s*\(\s*\)", todo_code):
+            problems.append(
+                Problem(
+                    notebook,
+                    1,
+                    "BUNDLE_REFRESH",
+                    f"{exercise_id} TODO must call refresh_core() before using the fixture",
+                )
+            )
+
+        focused = test_cells.get(exercise_id, [])
+        if len(focused) != 1:
+            problems.append(
+                Problem(
+                    notebook,
+                    1,
+                    "EXERCISE_TEST",
+                    f"{exercise_id} needs exactly one # test-check: {exercise_id} cell",
+                )
+            )
+        else:
+            _, test_code = focused[0]
+            focused_call = rf"\brun_exercise_tests\s*\(\s*['\"]{re.escape(exercise_id)}['\"]\s*\)"
+            if not re.search(focused_call, test_code):
+                problems.append(
+                    Problem(
+                        notebook,
+                        1,
+                        "EXERCISE_TEST",
+                        f"{exercise_id} test-check must call run_exercise_tests(\"{exercise_id}\")",
+                    )
+                )
+
+    for exercise_id in sorted(set(test_cells) - set(todo_cells)):
+        problems.append(
+            Problem(
+                notebook,
+                1,
+                "EXERCISE_TEST",
+                f"test-check references an exercise without a TODO: {exercise_id}",
+            )
+        )
+
+    test_class_ids: set[str] = set()
+    for test_file in sorted((notebook.parent / "tests").glob("test_*.py")):
+        try:
+            test_text = test_file.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            continue
+        test_class_ids.update(
+            re.findall(r"^class Test(E\d{2})\b", test_text, re.MULTILINE)
+        )
+    for exercise_id in sorted(set(todo_cells) - test_class_ids):
+        problems.append(
+            Problem(
+                notebook,
+                1,
+                "EXERCISE_TEST",
+                f"{exercise_id} needs a focused pytest class named Test{exercise_id}",
+            )
+        )
+    return problems
 
 
 def _public_functions(tree: ast.Module) -> list[ast.FunctionDef | ast.AsyncFunctionDef]:
@@ -356,10 +671,13 @@ def validate(
             return [Problem(target, 1, "BUNDLE", "bundle must contain workbook.ipynb")]
         problems, links, setup_cells = _validate_notebook(notebook, repo)
         problems.extend(_validate_notebook_setup(notebook, setup_cells, repo=repo))
+        problems.extend(_validate_bundle_notebook_ergonomics(notebook, setup_cells))
         problems.extend(_validate_python_bundle(target, repo=repo, check_collection=check_collection))
     elif target.suffix == ".ipynb":
         notebook = target
-        problems, links, _ = _validate_notebook(notebook, repo)
+        problems, links, setup_cells = _validate_notebook(notebook, repo)
+        problems.extend(_validate_notebook_setup(notebook, setup_cells, repo=repo))
+        problems.extend(_validate_notebook_only_ergonomics(notebook, setup_cells))
     else:
         return [Problem(target, 1, "PATH", "artifact must be a .ipynb file or bundle directory")]
 

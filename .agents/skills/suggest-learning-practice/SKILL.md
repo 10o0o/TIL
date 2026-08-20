@@ -122,7 +122,16 @@ Split into two or three coherent bundles only when questions, setup, or
 interpretation are genuinely independent. Do not split by lecture file or
 basic/advanced source variant, and do not create a backlog.
 
-For code-centered ML, DL, LLM, or systems practice, create:
+Choose the artifact boundary from the learning target, not from whether a
+layout looks production-like:
+
+- Use one `practice/<area>/<topic>.ipynb` for foundational mathematics, small
+  deterministic NumPy calculations, or self-contained Tensor/Shape mechanics
+  when implementation, fixtures, checks, and interpretation fit in one
+  Notebook and a reusable import boundary is not being learned.
+- Use a Notebook-led bundle when reusable imports, multiple modules or classes,
+  training-pipeline state, isolated pytest/CI behavior, or a systems process
+  boundary is material to the practice outcome:
 
 ```text
 practice/<area>/<topic>/
@@ -133,8 +142,6 @@ practice/<area>/<topic>/
     └── test_<module>.py
 ```
 
-Use one `practice/<area>/<topic>.ipynb` only for a compact hand calculation,
-Shape trace, or interpretation task that gains nothing from a module boundary.
 Never overwrite an existing learner artifact; choose a narrower new path or
 continue the existing one.
 
@@ -145,10 +152,46 @@ Provide only setup that does not solve the learning target:
 - a realistic scenario and requirements;
 - public signatures, type hints, and docstrings;
 - deterministic tiny fixtures, imports, and environment boilerplate;
-- one unexecuted `# setup-check` code cell that resolves the bundle's `src/`
-  from a repository-root Notebook kernel and imports its public interface;
+- exactly one unexecuted `# setup-check` code cell before the first exercise,
+  so it precedes every learner TODO;
 - tests expressing normal, edge, and failure contracts;
 - commands and values to observe.
+
+For a Notebook-only artifact:
+
+- keep the setup cell to dependency imports, type aliases, and non-solution
+  helpers;
+- put learner-owned functions in one `# TODO: E01` implementation cell;
+- put deterministic calls and observations in a separate
+  `# provided-fixture: E01` cell;
+- put a self-contained `check_e01()` definition and call in one
+  `# test-check: E01` cell, with explicit `# normal`, `# edge`, and `# failure`
+  cases;
+- use lightweight local assertions such as `numpy.testing`; do not add path
+  manipulation, module reload, subprocess, or pytest merely to imitate a
+  bundle.
+
+For a Notebook-led `src/` and `tests/` bundle, make the Notebook the convenient
+execution interface rather than making the learner reconstruct test setup:
+
+- define pure-Python `refresh_core()` and `run_exercise_tests("E01")` helpers
+  in the single `# setup-check` cell;
+- import the learner package through an explicit module alias, reload the
+  implementation module and package exports, and call public functions through
+  that visible alias; never create callable names with `globals().update`;
+- when the repository has static-analysis configuration, register the exact
+  bundle `src/` using its existing convention so completion and definition
+  lookup work as well as runtime imports;
+- put `# provided-fixture: E01`, a deterministic local fixture, public-function
+  calls, and state/Shape observation code in that exercise's TODO cell;
+- call `refresh_core()` before the fixture so the cell always uses saved code;
+- add one `# test-check: E01` cell that runs only that exercise's tests, so
+  later `NotImplementedError` stubs do not obscure the current result.
+
+Imports, fixtures, calls, prints, and comparison assertions are scaffolding,
+not the learner's answer. Do not hide the only runnable fixture in `tests/` or
+make the learner copy it by hand. Keep the core algorithm, target-specific
+validation, and interpretation learner-owned.
 
 Leave these to the learner from scratch:
 
@@ -200,6 +243,10 @@ PYTHONPATH=practice/<area>/<topic>/src \
   uv run pytest practice/<area>/<topic>/tests
 ```
 
+Group tests by exercise as `TestE01`, `TestE02`, and so on. During an unfinished
+bundle, use the Notebook's targeted test helper; reserve the whole-suite command
+for collection checks or the point when every exercise is implemented.
+
 The initial run is expected to fail only because learner functions remain
 `NotImplementedError`; syntax errors, import errors, fixture failures, and test
 collection errors are artifact defects.
@@ -213,10 +260,10 @@ python3 .agents/skills/suggest-learning-practice/scripts/validate_practice_artif
   practice/<area>/<topic>
 ```
 
-Also run Notebook JSON validation, the `# setup-check` import from the
-repository root without an injected `PYTHONPATH`, Python compilation, pytest
-collection for a bundle, link checks, and `git diff --check`. Read every final
-file.
+Also run Notebook JSON validation, the `# setup-check` from the repository root
+without an injected `PYTHONPATH`, code-cell compilation, link checks, and
+`git diff --check`. For a bundle, additionally run pytest collection. Read
+every final file.
 
 Then give the exact TIL, linked sources, mapped instructor practice, Practice
 Coverage Map, workbook, `src/`, and `tests/` to a fresh read-only reviewer that

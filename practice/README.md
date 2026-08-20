@@ -5,13 +5,17 @@ TIL에서 배운 내용을 직접 회상하고 구현하며, 실제 테스트 �
 
 ## 산출물 형태
 
-순수 손계산, 작은 Shape trace, 출력 해석은 단일 Notebook으로 충분합니다.
+기초 수학, 작은 deterministic NumPy 계산, 독립적인 Tensor·Shape 확인처럼
+재사용 모듈 경계가 학습 대상이 아닌 실습은 단일 Notebook을 사용합니다.
 
 ```text
 practice/<area>/<topic>.ipynb
 ```
 
-코드 중심 ML·DL·LLM·systems 실습은 작은 현업형 bundle을 기본으로 합니다.
+Notebook 안에서는 구현 셀, 고정 fixture 셀, normal·edge·failure 검사 셀,
+결과 해석을 분리해 가까이 둡니다. 재사용 API, 여러 모듈·클래스, 격리된
+pytest·CI, 학습 파이프라인이나 systems 경계가 성과에 포함될 때만 작은
+bundle을 사용합니다.
 
 ```text
 practice/<area>/<topic>/
@@ -23,11 +27,11 @@ practice/<area>/<topic>/
 ```
 
 Notebook은 상황, 실행 전 예측, 작은 계약, 단계별 힌트, 테스트 실행과
-결과 해석을 안내합니다. `src/`에는 type hint와 docstring이 있는 public
-signature만 제공하고 핵심 learner function은 `NotImplementedError`에서
-시작합니다. `tests/`는 normal·edge·failure 계약을 보여주지만 구현 방법은
-노출하지 않습니다. 첫 `# setup-check` 셀은 저장소 루트 kernel에서 해당
-bundle의 `src/`를 찾고 public interface를 실제로 import합니다.
+결과 해석을 안내합니다. 단일 Notebook의 learner function과 bundle의
+`src/` public function은 모두 `NotImplementedError`에서 시작합니다.
+Bundle의 `tests/`는 normal·edge·failure 계약을 보여주되 구현 방법을
+노출하지 않으며, 첫 `# setup-check` 셀은 저장소 루트 kernel에서 해당
+`src/`와 public interface를 실제로 import합니다.
 
 ## 생성 원칙
 
@@ -75,6 +79,10 @@ learner evidence가 아니며, 문제 상황·테스트·실패 사례를 설계
 사용합니다. 답이나 가짜 출력을 복사하지 않습니다.
 
 ## 실행과 피드백
+
+단일 Notebook은 setup을 한 번 실행한 뒤 현재 E번호의 구현 셀, fixture 셀,
+`check_e01()` 형식의 검사 셀 순서로 실행합니다. 함수 수정 뒤에는 현재
+구현 셀부터 다시 실행하면 됩니다.
 
 bundle은 저장소 루트에서 다음처럼 실행합니다.
 

@@ -47,11 +47,61 @@ For a Tensor lesson this might be a boundary function plus tests, not a model
 service. For a training-loop lesson it might be `train_step`, validation, and
 checkpoint selection on a fixed CPU batch, not distributed training.
 
-For a bundle, put exactly one unexecuted `# setup-check` cell before the first
-exercise TODO. It must add that exact bundle's `src/` from a repository-root
-kernel and import the public learner interface. The artifact validator executes
-this preparation cell without its pytest `PYTHONPATH` injection, so a workbook
-cannot appear valid while its first import is unusable.
+Put exactly one unexecuted `# setup-check` cell before the first exercise TODO.
+For Notebook-only work it imports dependencies and shared types. For a bundle,
+it must add that exact bundle's `src/` from a repository-root kernel and import
+the public learner interface. The artifact validator executes this preparation
+cell without pytest's `PYTHONPATH` injection.
+
+## Choose the smallest useful artifact boundary
+
+Use a single Notebook for foundational mathematics, small deterministic NumPy
+calculations, and self-contained Tensor or Shape mechanics when all relevant
+implementation and evidence fit beside one another. A production-looking
+directory is not useful authenticity when import, reload, and test-process
+bookkeeping are unrelated to the learning target.
+
+Within a Notebook-only exercise, keep four visible boundaries adjacent:
+
+1. a learner function cell marked `# TODO: E01`;
+2. a deterministic observation cell marked `# provided-fixture: E01`;
+3. a self-contained `check_e01()` cell marked `# test-check: E01`, containing
+   normal, edge, and failure cases;
+4. the learner's interpretation prompt.
+
+Use a Notebook-led `src/` and `tests/` bundle only when a reusable import/API,
+multiple modules or classes, isolated pytest/CI behavior, training-pipeline
+state, or a systems boundary is itself part of the performance target.
+
+## Notebook ergonomics for bundles
+
+The `src/` boundary should teach reusable implementation and test contracts,
+not impose kernel and fixture bookkeeping on the learner. A bundle Notebook
+therefore provides two pure-Python helpers in its `# setup-check` cell:
+
+- `refresh_core()` reloads the learner implementation module and package
+  exports behind an explicit module alias;
+- `run_exercise_tests("E01")` invokes only `TestE01` with the current kernel's
+  Python and the bundle `src/` on `PYTHONPATH`.
+
+Notebook calls use the visible alias, such as `practice_api.describe(...)`.
+Never inject public names through `globals().update`: runtime rebinding hides
+definitions and signatures from static analysis. When the repository already
+has static-analysis configuration, add the exact bundle `src/` through that
+configuration's established mechanism.
+
+Every exercise TODO cell uses an explicit `# provided-fixture: E01` marker,
+calls `refresh_core()`, declares its deterministic tiny inputs locally, invokes
+the public interface, and exposes only the states, Shapes, or comparisons the
+learner must interpret. A separate `# test-check: E01` cell runs its focused
+test class. This is procedural scaffolding: it must not implement the learner's
+algorithm, target-specific error handling, or interpretation.
+
+Keep fixtures beside the exercise rather than only in the test file. This
+prevents split attention and lets the learner follow one short loop: edit
+`src/`, save, run the exercise cell, run its test cell, and interpret. Apply
+this contract only to Notebook-led bundles with external `src/` and `tests/`;
+a compact Notebook-only hand calculation does not need reload or pytest helpers.
 
 ## Coverage-map review
 
@@ -81,8 +131,11 @@ A fresh reviewer returns `pass` only when all are true:
 - code cells are unexecuted and contain no fabricated output;
 - setup, package structure, and production conventions remain smaller than the
   concept being learned;
-- initial pytest collection and imports succeed, while execution fails only at
-  explicit learner-owned `NotImplementedError` boundaries.
+- a Notebook-only artifact has adjacent implementation, fixture, and local
+  normal/edge/failure checks, while a bundle's pytest collection and imports
+  succeed;
+- initial execution fails only at explicit learner-owned `NotImplementedError`
+  boundaries.
 
 The reviewer identifies concrete blocking findings, not stylistic preferences.
 One revision and one second fresh review are the maximum. Never replace an
